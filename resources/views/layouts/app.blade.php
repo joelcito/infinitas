@@ -3,7 +3,7 @@
 <html lang="en">
 	<!--begin::Head-->
 	<head>
-		<title>VIRUS NOT | FACTURACION</title>
+		<title>INFINITAS SOLUINES | FACTURACION</title>
 		<meta charset="utf-8" />
         @yield('metadatos')
 		<meta name="description" content="The most advanced Bootstrap 5 Admin Theme with 40 unique prebuilt layouts on Themeforest trusted by 100,000 beginners and professionals. Multi-demo, Dark Mode, RTL support and complete React, Angular, Vue, Asp.Net Core, Rails, Spring, Blazor, Django, Express.js, Node.js, Flask, Symfony & Laravel versions. Grab your copy now and get life-time updates for free." />
@@ -65,7 +65,7 @@
 				<!--begin::Header-->
 				<div id="kt_app_header" class="app-header" data-kt-sticky="true" data-kt-sticky-activate="{default: true, lg: true}" data-kt-sticky-name="app-header-minimize" data-kt-sticky-offset="{default: '200px', lg: '0'}" data-kt-sticky-animation="false">
 					<!--begin::Header container-->
-					<div class="app-container container-fluid d-flex align-items-stretch justify-content-between bg-primary" id="kt_app_header_container">
+					<div class="app-container container-fluid d-flex align-items-stretch justify-content-between" id="kt_app_header_container">
 						<!--begin::Sidebar mobile toggle-->
 						<div class="d-flex align-items-center d-lg-none ms-n3 me-1 me-md-2" title="Show sidebar menu">
 							<div class="btn btn-icon btn-active-color-primary w-35px h-35px" id="kt_app_sidebar_mobile_toggle">
@@ -104,7 +104,7 @@
 								<!--begin::Theme mode-->
 								<div class="app-navbar-item ms-1 ms-md-4">
 									<!--begin::Menu toggle-->
-									<a href="#" class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px" data-kt-menu-trigger="{default:'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
+									<a href="#" class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-dark w-35px h-35px" data-kt-menu-trigger="{default:'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
 										<i class="ki-duotone ki-night-day theme-light-show fs-1">
 											<span class="path1"></span>
 											<span class="path2"></span>
@@ -183,7 +183,7 @@
 								<div class="app-navbar-item ms-1 ms-md-4" id="kt_header_user_menu_toggle">
 									<!--begin::Menu wrapper-->
 									<div class="cursor-pointer symbol symbol-35px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
-										<i class="fa fa-user text-white" style="font-size: 30px;"></i>
+										<i class="fa fa-user" style="font-size: 30px;"></i>
 									</div>
 									<!--begin::User account menu-->
 									<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-color fw-semibold py-4 fs-6 w-275px" data-kt-menu="true">
@@ -233,7 +233,7 @@
 					<!--begin::Sidebar-->
 					<div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
 						<!--begin::Logo-->
-						<div class="app-sidebar-logo px-6 bg-primary" id="kt_app_sidebar_logo">
+						<div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
 							<!--begin::Logo image-->
 							<a href="{{ url('home') }}">
 								<div class="row mt-5">
@@ -251,7 +251,7 @@
 									</div>
 									<div class="col-md-6">
                                         @if (Auth::user()->isAdmin())
-    										<h2 class="text-white text-center mr-10">VIRUSNOT SYSTEN</h2>
+    										<h2 class="text-white text-center mr-10">INFINITAS SOLUCIONES</h2>
                                         @else
                                             <h2 class="text-white text-center mr-10">{{ Auth::user()->empresa->nombre }}</h2>
                                         @endif

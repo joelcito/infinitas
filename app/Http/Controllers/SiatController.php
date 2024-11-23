@@ -377,8 +377,9 @@ class SiatController extends Controller
             $data['resultado'] = $resultado;
         } catch (SoapFault $fault) {
             $resultado = false;
-            $data['estado'] = 'error';
+            $data['estado']    = 'error';
             $data['resultado'] = $resultado;
+            $data['mensaje']   = $fault->getMessage();
         }
 
         // dd($data);

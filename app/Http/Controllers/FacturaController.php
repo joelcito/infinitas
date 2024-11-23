@@ -2454,9 +2454,12 @@ class FacturaController extends Controller
 
         $siat = app(SiatController::class);
 
+        $urlApiServicioSiat = new UrlApiServicioSiat();
+        $UrlSincronizacion  = $urlApiServicioSiat->getUrlSincronizacion($empresa->codigo_ambiente, $empresa->codigo_modalidad);
+
         // dd(
         //     "api_token => ".$empresa->api_token,
-        //     "url_facturacionSincronizacion => ".$empresa->url_facturacionSincronizacion,
+        //     "url_facturacionSincronizacion => ".$UrlSincronizacion->url_servicio,
         //     "codigo_ambiente => ".$empresa->codigo_ambiente,
         //     "codigoPuntoVenta => ".$puntoVenta->codigoPuntoVenta,
         //     "codigo_sistema => ".$empresa->codigo_sistema,
@@ -2470,7 +2473,7 @@ class FacturaController extends Controller
 
             $sincronizarActividades                         = json_decode($siat->sincronizarActividades(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2478,9 +2481,10 @@ class FacturaController extends Controller
                 $cuis->codigo,
                 $empresa->nit
             ));
+
             $sincronizarFechaHora                           = json_decode($siat->sincronizarFechaHora(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2490,7 +2494,7 @@ class FacturaController extends Controller
             ));
             $sincronizarListaActividadesDocumentoSector     = json_decode($siat->sincronizarListaActividadesDocumentoSector(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2500,7 +2504,7 @@ class FacturaController extends Controller
             ));
             $sincronizarListaLeyendasFactura                = json_decode($siat->sincronizarListaLeyendasFactura(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2510,7 +2514,7 @@ class FacturaController extends Controller
             ));
             $sincronizarListaMensajesServicios              = json_decode($siat->sincronizarListaMensajesServicios(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2520,7 +2524,7 @@ class FacturaController extends Controller
             ));
             $sincronizarListaProductosServicios             = json_decode($siat->sincronizarListaProductosServicios(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2530,7 +2534,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaEventosSignificativos    = json_decode($siat->sincronizarParametricaEventosSignificativos(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2540,7 +2544,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaMotivoAnulacion          = json_decode($siat->sincronizarParametricaMotivoAnulacion(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2550,7 +2554,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaPaisOrigen               = json_decode($siat->sincronizarParametricaPaisOrigen(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2560,7 +2564,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaTipoDocumentoIdentidad   = json_decode($siat->sincronizarParametricaTipoDocumentoIdentidad(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2570,7 +2574,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaTipoDocumentoSector      = json_decode($siat->sincronizarParametricaTipoDocumentoSector(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2580,7 +2584,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaTipoEmision              = json_decode($siat->sincronizarParametricaTipoEmision(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2590,7 +2594,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaTipoHabitacion           = json_decode($siat->sincronizarParametricaTipoHabitacion(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2600,7 +2604,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaTipoMetodoPago           = json_decode($siat->sincronizarParametricaTipoMetodoPago(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2610,7 +2614,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaTipoMoneda               = json_decode($siat->sincronizarParametricaTipoMoneda(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2620,7 +2624,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaTipoPuntoVenta           = json_decode($siat->sincronizarParametricaTipoPuntoVenta(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2630,7 +2634,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaTiposFactura             = json_decode($siat->sincronizarParametricaTiposFactura(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
@@ -2640,7 +2644,7 @@ class FacturaController extends Controller
             ));
             $sincronizarParametricaUnidadMedida             = json_decode($siat->sincronizarParametricaUnidadMedida(
                 $empresa->api_token,
-                $empresa->url_facturacionSincronizacion,
+                $UrlSincronizacion->url_servicio,
                 $empresa->codigo_ambiente,
                 $puntoVenta->codigoPuntoVenta,
                 $empresa->codigo_sistema,
