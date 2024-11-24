@@ -11,7 +11,6 @@
         }
 
         body {
-            /* background-image: url('<?php //echo base_url(); ?>public/assets/images/reportes/formato.png'); */
             background-repeat: no-repeat;
             font-size: 13px;
         }
@@ -40,7 +39,7 @@
             border-collapse : collapse;
             background-color: #fff;
             position        : absolute;
-            top             : 270px;
+            top             : 275px;
             left            : 25px;
             width           : 720px;
         }
@@ -143,21 +142,21 @@
         }
 
         #table_datos_factura{
-            position: absolute;
-            width: 300px;
-            margin-left: 20px;
-            margin-top: 220px;
-            text-align: center;
-            font-size: 11px;
-            text-align: left;
+            position        : absolute;
+            width           : 350px;
+            margin-left     : 20px;
+            margin-top      : 220px;
+            text-align      : center;
+            font-size       : 11px;
+            text-align      : left;
         }
 
         #table_datos_factura1{
-            position: absolute;
-            width:300px;
-            right: -20px;
-            top: 220px;
-            font-size: 11px;
+            position        : absolute;
+            width           : 300px;
+            right           : -20px;
+            top             : 220px;
+            font-size       : 11px;
         }
 
         #anulado{
@@ -271,6 +270,16 @@
                 <td><b>Nombre/Razón Social:</b></td>
                 <td>{{ $archivoXML->cabecera->nombreRazonSocial }}</td>
             </tr>
+            @if ($tipo_documento_sector == "11")
+            <tr>
+                <td>
+                    <b>Nombre Estudiante:</b>
+                </td>
+                <td>
+                    {{ $archivoXML->cabecera->nombreEstudiante }}
+                </td>
+            </tr>
+            @endif
         </tbody>
     </table>
 
@@ -287,13 +296,21 @@
                     @endif
                 </td>
             </tr>
-        </thead>
-        <tbody>
             <tr>
                 <td style="text-align: right"><b>Cod. Cliente:</b></td>
                 <td>{{ $archivoXML->cabecera->codigoCliente }}</td>
             </tr>
-        </tbody>
+            @if ($tipo_documento_sector == "11")
+            <tr>
+                <td style="text-align: right">
+                    <b>Periodo Facturado:</b>
+                </td>
+                <td>
+                    {{ $archivoXML->cabecera->periodoFacturado }}
+                </td>
+            </tr>
+            @endif
+        </thead>
     </table>
 
     <table class="datos">
@@ -364,18 +381,7 @@
                 @endif
             @endforeach
             <tr style="align: right;">
-                <td  style="background: white; border: none;" colspan="4" rowspan="{{ ($tipo_documento_sector == "1")? 6 : 5 }}">
-                    {{-- este era el otro --}}
-                    {{-- @php
-                        $to = ((float) $archivoXML->cabecera->montoTotal);
-                        $number = $to;
-                        // Crear una instancia de NumberFormatter para el idioma español
-                        $formatter = new NumberFormatter('es', NumberFormatter::SPELLOUT);
-                        // Convertir el número en su forma literal
-                        $literal = $formatter->format($number);
-
-                    @endphp
-                    <b>Son: {{ ucfirst($literal) }} 00/100 Bolivianos</b> --}}
+                <td  style="background: white; border: none;" colspan="4" rowspan="{{ ($tipo_documento_sector != "8")? 6 : 5 }}">
 
                     {{-- ESTE ES EL NUEVO --}}
                     @php
@@ -424,7 +430,7 @@
                     <b>{{ number_format((float) $archivoXML->cabecera->montoTotal,2) }}</b>
                 </td>
             </tr>
-            @if ($tipo_documento_sector == "1")
+            @if ($tipo_documento_sector != "8")
                 <tr>
                     <td colspan="2" style="text-align: right; padding-right: 10px;"><b>IMPORTE BASE CRÉDITO FISCAL</b></td>
                     <td style="text-align: right;">
@@ -455,7 +461,6 @@
                     <td colspan="5" style="background: white; border: none">“Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea”</td>
                 @else
                     <td colspan="5" style="background: white; border: none">“Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido fuera de línea, verifique su envío con su proveedor o en la página web www.impuestos.gob.bo”</td>
-
                 @endif
             </tr>
         </tbody>

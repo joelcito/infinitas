@@ -17,7 +17,6 @@
         <tbody class="text-gray-600 fw-semibold">
             @forelse ( $facturas as $fac)
                 <tr>
-                    {{-- <td>{{ $fac->cliente->nombres." ".$fac->cliente->ap_paterno." ".$fac->cliente->ap_materno }}</td> --}}
                     <td>{{ $fac->nombres." ".$fac->ap_paterno." ".$fac->ap_materno }}</td>
                     <td>{{ $fac->fecha }}</td>
                     <td>{{ $fac->total }}</td>
@@ -31,6 +30,8 @@
                     <td>
                         @if ($fac->siat_tipo_documento_sector->codigo_clasificador == "8")
                             Fac. Tasa Cero
+                        @elseif($fac->siat_tipo_documento_sector->codigo_clasificador == "11")
+                            Fac. Sec. Educativo
                         @else
                             Fac. Com. Venta
                         @endif

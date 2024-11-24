@@ -3,7 +3,6 @@
     <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_users">
         <thead>
             <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                <th>Documento Sector</th>
                 <th>Ambiente</th>
                 <th>Modalidad</th>
                 <th>Nombre</th>
@@ -14,11 +13,6 @@
         <tbody class="text-gray-600 fw-semibold">
             @forelse ( $url_apis_servicios as $urls)
                 <tr>
-                    <td>
-                        @if ($urls->siat_tipo_documento_sector)
-                            {{ $urls->siat_tipo_documento_sector->descripcion }}
-                        @endif
-                    </td>
                     <td>
                         @if ($urls->ambiente === "2")
                             <span class="badge badge-warning">DESARROLLO</span>

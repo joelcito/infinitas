@@ -105,31 +105,6 @@
                     <!--begin::Title-->
                     <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">Listado de Facturas</h1>
                     <!--end::Title-->
-                    <!--begin::Breadcrumb-->
-                    {{--  <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-                        <!--begin::Item-->
-                        <li class="breadcrumb-item text-muted">
-                            <a href="index.html" class="text-muted text-hover-primary">Home</a>
-                        </li>
-                        <!--end::Item-->
-                        <!--begin::Item-->
-                        <li class="breadcrumb-item">
-                            <span class="bullet bg-gray-500 w-5px h-2px"></span>
-                        </li>
-                        <!--end::Item-->
-                        <!--begin::Item-->
-                        <li class="breadcrumb-item text-muted">User Management</li>
-                        <!--end::Item-->
-                        <!--begin::Item-->
-                        <li class="breadcrumb-item">
-                            <span class="bullet bg-gray-500 w-5px h-2px"></span>
-                        </li>
-                        <!--end::Item-->
-                        <!--begin::Item-->
-                        <li class="breadcrumb-item text-muted">Users</li>
-                        <!--end::Item-->
-                    </ul>  --}}
-                    <!--end::Breadcrumb-->
                 </div>
                 <!--end::Page title-->
 
@@ -142,6 +117,10 @@
 
                     @if (Auth::user()->isFacturacionTasaCero())
                         <a class="btn btn-sm fw-bold btn-primary" href="{{ url('factura/formularioFacturacionTc') }}"><i class="fa fa-plus"></i>Nueva Venta Tasa Cero</a>
+                    @endif
+
+                    @if (Auth::user()->isFacturacionSectorEducativo())
+                        <a class="btn btn-sm fw-bold btn-primary" href="{{ url('factura/formularioFacturacionSe') }}"><i class="fa fa-plus"></i>Nueva Venta Sector Educativo</a>
                     @endif
                 </div>
                 <!--end::Actions-->
@@ -222,74 +201,9 @@
 
             ajaxListado();
 
-            // $('#kt_table_users').DataTable({
-            //     lengthMenu: [10, 25, 50, 100], // Opciones de longitud de página
-            //     dom: '<"dt-head row"<"col-md-6"l><"col-md-6"f>><"clear">t<"dt-footer row"<"col-md-5"i><"col-md-7"p>>', // Use dom for basic layout
-            //     language: {
-            //     paginate: {
-            //         first : 'Primero',
-            //         last : 'Último',
-            //         next : 'Siguiente',
-            //         previous: 'Anterior'
-            //     },
-            //     search : 'Buscar:',
-            //     lengthMenu: 'Mostrar _MENU_ registros por página',
-            //     info : 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-            //     emptyTable: 'No hay datos disponibles'
-            //     },
-            //     order:[],
-            //     //  searching: true,
-            //     responsive: true
-            // });
-
-
         });
 
-        // function modalEmpresa(){
-        //     $('#modal_new_empresa').modal('show')
-        // }
-
-        // function guardarEmpresa(){
-        //     if($("#formulario_empresa")[0].checkValidity()){
-        //         console.log($('#formulario_empresa').serializeArray())
-
-        //         let datos = $('#formulario_empresa').serializeArray()
-
-        //         $.ajax({
-        //             url: "{{ url('empresa/guarda') }}",
-        //             method: "POST",
-        //             data: datos,
-        //             success: function (data) {
-        //                 if(data.estado === 'success'){
-        //                     // console.log(data)
-        //                     Swal.fire({
-        //                         icon:'success',
-        //                         title: "EXITO!",
-        //                         text:  "SE REGISTRO CON EXITO",
-        //                     })
-        //                     ajaxListado();
-        //                     $('#modal_new_empresa').modal('hide')
-        //                     // location.reload();
-        //                 }else{
-        //                     // console.log(data, data.detalle.mensajesList)
-        //                     // Swal.fire({
-        //                     //     icon:'error',
-        //                     //     title: data.detalle.codigoDescripcion,
-        //                     //     text:  JSON.stringify(data.detalle.mensajesList),
-        //                     //     // timer:1500
-        //                     // })
-        //                 }
-        //             }
-        //         })
-
-        //     }else{
-        //         $("#formularioTramsfereciaFactura")[0].reportValidity();
-        //     }
-        // }
-
         function ajaxListado(){
-
-            // $('#botom_genera_buscar').prop('disabled', true);
 
             // Mostrar SweetAlert2 antes de enviar la solicitud
             Swal.fire({

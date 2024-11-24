@@ -93,9 +93,6 @@ class User extends Authenticatable
                 $estado  = true;
 
         return $estado;
-
-        // $empresa = $this->empresa;
-        // return $empresa->codigo_documento_sector == '1' ? true : false;
     }
 
     public function isFacturacionTasaCero(){
@@ -107,8 +104,16 @@ class User extends Authenticatable
 
         return $estado;
 
-        // $empresa = $this->empresa;
-        // return $empresa->codigo_documento_sector == '8' ? true : false;
+    }
+
+    public function isFacturacionSectorEducativo(){
+        $empresa = $this->empresa;
+        $estado  = false;
+        if($empresa)
+            if($empresa->empresasDocumentosTipoSector('11'))
+                $estado  = true;
+
+        return $estado;
 
     }
 

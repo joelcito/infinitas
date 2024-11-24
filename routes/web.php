@@ -187,6 +187,9 @@ Route::middleware(['auth', 'one.session'])->group(function () {
         Route::post('/reportePDF', [FacturaController::class,'reportePDF']);
         Route::post('/reporteExcel', [FacturaController::class,'reporteExcel']);
 
+        Route::get('/formularioFacturacionSe', [FacturaController::class, 'formularioFacturacionSe']);
+        Route::post('/emitirFacturaSe', [FacturaController::class, 'emitirFacturaSe']);
+
     });
 
     Route::prefix('/registrocompras')->group(function(){

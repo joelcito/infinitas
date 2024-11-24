@@ -162,6 +162,15 @@
                                             <span class="menu-title text-white">Facturacion Tasa Cero</span>
                                         </a>
                                     </div>
+                                @elseif($eds->siat_tipo_documento_sector->codigo_clasificador == '11')
+                                    <div class="menu-item">
+                                        <a class="menu-link" href="{{ url('factura/formularioFacturacionSe') }}">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                            <span class="menu-title text-white">Facturacion Sector Educativo</span>
+                                        </a>
+                                    </div>
                                 @else
                                     <div class="menu-item">
                                         <a class="menu-link" href="#">

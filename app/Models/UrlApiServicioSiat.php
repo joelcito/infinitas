@@ -57,4 +57,11 @@ class UrlApiServicioSiat extends Model
                     ->first();
     }
 
+    public function getUrlFacturacionSectorEducativoElectronica($ambiente, $modalidad){
+        return $this->where('ambiente', $ambiente)
+                    ->where('modalidad', $modalidad)
+                    ->where('nombre', 'url_servicio_facturacion_sector_educativo')
+                    ->first();
+    }
+
 }
