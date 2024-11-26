@@ -22,6 +22,9 @@
                     @if ($s->detalles($s->id) == "0")
                         <button class="btn btn-danger btn-icon btn-sm" onclick="eliminarServicio('{{ $s->id }}')"><i class="fa fa-trash"></i></button>
                     @endif
+                    @if ($s->tipo == 'producto')
+                        <button class="btn btn-info btn-icon btn-sm" onclick="ingresoProducto('{{ $s->id }}')"><i class="fa fa-cube"></i></button>
+                    @endif
                 </td>
             </tr>
         @empty

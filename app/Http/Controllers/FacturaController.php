@@ -9,6 +9,7 @@ use App\Models\Cuis;
 use App\Models\Detalle;
 use App\Models\Empresa;
 use App\Models\Factura;
+use App\Models\Movimiento;
 use App\Models\PuntoVenta;
 use App\Models\Servicio;
 use App\Models\SiatDependeActividades;
@@ -1390,6 +1391,26 @@ class FacturaController extends Controller
                                             'estado'     => 'Finalizado',
                                             'factura_id' => $facturaVerdad->id
                                         ]);
+
+                                // DE AQUI VERIFICAMOS SI ES PRODUCTO O SERVICIO
+                                foreach($idDetalles as $idDetalle){
+
+                                    $detalle  = Detalle::find($idDetalle);
+                                    $servicio = $detalle->servicio;
+
+                                    if($servicio->tipo == 'producto'){
+                                        $movimiento                     = new Movimiento();
+                                        $movimiento->usuario_creador_id = $usuario->id;
+                                        $movimiento->sucursal_id        = $sucursal_objeto->id;
+                                        $movimiento->servicio_id        = $servicio->id;
+                                        $movimiento->salida             = $detalle->cantidad;
+                                        $movimiento->ingreso            = 0;
+                                        $movimiento->fecha              = date('Y-m-d H:i:s');
+                                        $movimiento->descripcion        = "VENTA";
+                                        $movimiento->save();
+                                    }
+
+                                }
 
                                 $data['estado'] = $codigo_descripcion;
                                 $data['numero'] = $facturaVerdad->id;

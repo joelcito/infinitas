@@ -72,13 +72,25 @@
                             </div>
                         </div>
                         <div class="row mt-5">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label class="fs-6 fw-semibold form-label mb-2 required">Descripcion del Servicio</label>
                                 <input type="text" class="form-control fw-bold form-control-solid" name="descrpcion_new_servicio" id="descrpcion_new_servicio" required>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label class="fs-6 fw-semibold form-label mb-2 required">Precio</label>
                                 <input type="number" class="form-control fw-bold form-control-solid" name="precio_new_servicio" id="precio_new_servicio" required step="any">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md mt-10">
+                                        <label class="fs-6 fw-semibold form-label mb-2 required" for="servicio">Servicio</label>
+                                        <input type="radio" name="tipo_producto_servicio" id="servicio" value="servicio" class="form-check-input" required>
+                                    </div>
+                                    <div class="col-md mt-10">
+                                        <label class="fs-6 fw-semibold form-label mb-2 required" for="producto">Producto</label>
+                                        <input type="radio" name="tipo_producto_servicio" id="producto" value="producto" class="form-check-input" required>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="row mt-5">
@@ -94,7 +106,6 @@
         <!--end::Modal dialog-->
     </div>
     <!--end::Modal - New Card-->
-
 
     <!--end::Modal - New Card-->
     <div class="modal fade" id="modal_new_servicio_importar_excel" tabindex="-1" aria-hidden="true">
@@ -155,6 +166,32 @@
                             </div>
                         </div>
                     </form>
+                </div>
+            </div>
+            <!--end::Modal content-->
+        </div>
+        <!--end::Modal dialog-->
+    </div>
+    <!--end::Modal - New Card-->
+
+
+    <!--end::Modal - New Card-->
+    <div class="modal fade" id="modal_ingreso_prodcuto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-500px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="fw-bold">Modal de Ingreso de Producto</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="ki-duotone ki-cross fs-1">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                        </i>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y">
+                    <div id="detalle_ingreso_producto">
+
+                    </div>
                 </div>
             </div>
             <!--end::Modal content-->
@@ -291,6 +328,9 @@
                     method: "POST",
                     data  : datos,
                     success: function (data) {
+
+                        console.log(data);
+
                         if(data.estado === 'success'){
                             Swal.fire({
                                 icon:'success',
@@ -513,6 +553,61 @@
 
             }else{
                 $("#formulario_importar_servicios_productos_excel")[0].reportValidity();
+            }
+        }
+
+        function ingresoProducto(servicio){
+
+            $.ajax({
+                url: "{{ url('empresa/ajaxDetalleIngresoProducto') }}",
+                method: "POST",
+                data: {servicio:servicio},
+                success: function (data) {
+                    if(data.estado === 'success'){
+
+                        $('#detalle_ingreso_producto').html(data.listado)
+                        $('#modal_ingreso_prodcuto').modal('show');
+
+                    }else{
+                        Swal.fire({
+                            icon : 'error',
+                            title: "ALTO!",
+                            text : "Ocurrio un erros",
+                        })
+                    }
+                }
+            })
+
+        }
+
+        function ingresoProductoSucursal(){
+
+            if($("#formlario_ingreso_prodcuto")[0].checkValidity()){
+                let datos = $('#formlario_ingreso_prodcuto').serializeArray();
+                $.ajax({
+                    url   : "{{ url('empresa/ingresoProductoSucursal') }}",
+                    method: "POST",
+                    data  : datos,
+                    success: function (data) {
+
+                        if(data.estado === 'success'){
+                            Swal.fire({
+                                icon:'success',
+                                title: "EXITO!",
+                                text:  data.text,
+                            })
+                        }else if(data.estado === 'error'){
+                            Swal.fire({
+                                icon : 'warning',
+                                title: "ALTO!",
+                                text : data.text,
+                            })
+                        }
+                        $('#modal_ingreso_prodcuto').modal('hide');
+                    }
+                })
+            }else{
+                $("#formlario_ingreso_prodcuto")[0].reportValidity();
             }
         }
    </script>

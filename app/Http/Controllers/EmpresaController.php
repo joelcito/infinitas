@@ -7,6 +7,7 @@ use App\Models\Cuis;
 use App\Models\Empresa;
 use App\Models\EmpresaDocumentoSector;
 use App\Models\Factura;
+use App\Models\Movimiento;
 use App\Models\Plan;
 use App\Models\PuntoVenta;
 use App\Models\Rol;
@@ -1261,7 +1262,9 @@ class EmpresaController extends Controller
             $usuario = Auth::user();
             $empresa_id = $usuario->empresa_id;
 
-            $servicios = Servicio::where('empresa_id', $empresa_id)->get();
+            $servicios = Servicio::where('empresa_id', $empresa_id)
+                                    ->orderBy('id', 'desc')
+                                    ->get();
 
             $data['listado'] = view('empresa.ajaxListadoProductoServicioEmpresa')->with(compact('servicios'))->render();
             $data['estado'] = 'success';
@@ -1276,6 +1279,8 @@ class EmpresaController extends Controller
 
     public function guardarProductoServicioEmpresa(Request $request){
         if($request->ajax()){
+
+            // dd($request->all());
 
             $suscripcion = app(SuscripcionController::class);
             $usuario     = Auth::user();
@@ -1298,7 +1303,6 @@ class EmpresaController extends Controller
                         $servicio                         = Servicio::find($guardarProductoServicioEmpresa);
                         $servicio->usuario_modificador_id = $usuario->id;
                     }
-                    // $servicio                              = $guardarProductoServicioEmpresa == "0" ? new Servicio()  : Servicio::find($guardarProductoServicioEmpresa);
                     $servicio->empresa_id                  = $empresa_id;
                     $servicio->siat_depende_actividades_id = $request->input('actividad_economica_siat_id_new_servicio');
                     $servicio->siat_documento_sector_id    = $request->input('documento_sector_siat_id_new_servicio');
@@ -1308,6 +1312,7 @@ class EmpresaController extends Controller
                     $servicio->codigo_imei                 = $request->input('codigo_imei');
                     $servicio->descripcion                 = $request->input('descrpcion_new_servicio');
                     $servicio->precio                      = $request->input('precio_new_servicio');
+                    $servicio->tipo                        = $request->input('tipo_producto_servicio');
                     $servicio->save();
 
                     $data['estado'] = 'success';
@@ -2651,6 +2656,79 @@ class EmpresaController extends Controller
             $data['estado'] = 'error';
         }
         return $data;
+    }
+
+    public function ajaxDetalleIngresoProducto(Request $request){
+        if($request->ajax()){
+
+            $usuario     = Auth::user();
+            $empresa     = $usuario->empresa;
+            $sucursal    = $usuario->sucursal;
+            $servicio_id = $request->input('servicio');
+
+            $movimiento = new Movimiento();
+            $servicio   = Servicio::find($servicio_id);
+
+            $cantidad_disponible = $movimiento->cantidaDisponile($sucursal->id ,$servicio_id);
+
+            $sucursales = Sucursal::where('empresa_id', $empresa->id)->get();
+
+            $data['text']    = 'Se proceso con exito';
+            $data['listado'] = view('empresa.ajaxDetalleIngresoProducto')->with(compact('servicio', 'cantidad_disponible', 'sucursales'))->render();
+            $data['estado']  = 'success';
+
+        }else{
+            $data['text']   = 'No existe';
+            $data['estado'] = 'error';
+        }
+
+        return $data;
+    }
+
+    public function ingresoProductoSucursal(Request $request){
+
+        if($request->ajax()){
+
+            $usuario          = Auth::user();
+            $empresa          = $usuario->empresa;
+            $servicio_id      = $request->input('servicio_id');
+            $cantidad_ingreso = $request->input('cantidad_ingreso');
+            $sucursal_id      = $request->input('sucuarsal_id_add');
+
+            $servicio = Servicio::find($servicio_id);
+            $sucursal = Sucursal::find($sucursal_id);
+
+            if($servicio->empresa_id == $empresa->id){
+                if($sucursal->empresa_id == $empresa->id){
+
+                    $movimiento                     = new Movimiento();
+                    $movimiento->usuario_creador_id = $usuario->id;
+                    $movimiento->sucursal_id        = $sucursal->id;
+                    $movimiento->servicio_id        = $servicio->id;
+                    $movimiento->ingreso            = $cantidad_ingreso;
+                    $movimiento->salida             = 0;
+                    $movimiento->fecha              = date('Y-m-d H:i:s');
+                    $movimiento->descripcion        = "INGRESO";
+                    $movimiento->save();
+
+                    $data['text']   = 'Se proceso con exito';
+                    $data['estado'] = 'success';
+
+                }else{
+                    $data['text']   = 'Sucursal no existe';
+                    $data['estado'] = 'error';
+                }
+            }else{
+                $data['text']   = 'Servicio no existe';
+                $data['estado'] = 'error';
+            }
+        }else{
+            $data['text']   = 'No existe';
+            $data['estado'] = 'error';
+        }
+
+        return $data;
+
     }
 
 }
