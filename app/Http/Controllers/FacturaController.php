@@ -1416,16 +1416,16 @@ class FacturaController extends Controller
                                 $data['numero'] = $facturaVerdad->id;
 
                                 // ***************** ENVIAMOS EL CORREO DE LA FACTURA *****************
-                                if($swFacturaEnvio){
-                                    $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
-                                    $this->enviaCorreo(
-                                        $cliente->correo,
-                                        $nombre,
-                                        $facturaVerdad->numero,
-                                        $facturaVerdad->fecha,
-                                        $facturaVerdad->id
-                                    );
-                                }
+                                // if($swFacturaEnvio){
+                                //     $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                                //     $this->enviaCorreo(
+                                //         $cliente->correo,
+                                //         $nombre,
+                                //         $facturaVerdad->numero,
+                                //         $facturaVerdad->fecha,
+                                //         $facturaVerdad->id
+                                //     );
+                                // }
 
                             }else{
                                 $data['estado'] = "RECHAZADA";
@@ -1519,7 +1519,6 @@ class FacturaController extends Controller
         }
         return $data;
     }
-
     public function emitirFacturaTc(Request $request){
 
         if($request->ajax()){
@@ -2009,7 +2008,6 @@ class FacturaController extends Controller
         return $data;
 
     }
-
     public function emitirFacturaSe(Request $request) {
 
         if($request->ajax()){
