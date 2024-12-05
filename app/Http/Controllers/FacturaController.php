@@ -569,8 +569,10 @@ class FacturaController extends Controller
             $urlApiServicioSiat = new UrlApiServicioSiat();
             if($documento_sector->codigo_clasificador == "8")
                 $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionTasaCeroElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
-            else
+            else if($documento_sector->codigo_clasificador == "1")
                 $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionCompraVentaElctronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
+            else
+                $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionSectorEducativoElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
 
 
             $header                = $empresa->api_token;
@@ -672,25 +674,10 @@ class FacturaController extends Controller
             $urlApiServicioSiat = new UrlApiServicioSiat();
             if($documento_sector->codigo_clasificador == "8")
                 $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionTasaCeroElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
-            else
+            else if($documento_sector->codigo_clasificador == "1")
                 $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionCompraVentaElctronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
-
-
-
-            // dd($cufdVigente);
-
-            // $header                = $empresa->api_token;
-            // $url3                  = $empresa->url_servicio_facturacion_compra_venta;
-            // $codigoAmbiente        = $empresa->codigo_ambiente;
-            // $codigoDocumentoSector = $empresa->codigo_documento_sector;
-            // $codigoModalidad       = $empresa->codigo_modalidad;
-            // $codigoPuntoVenta      = $punto_venta->codigoPuntoVenta;
-            // $codigoSistema         = $empresa->codigo_sistema;
-            // $codigoSucursal        = $sucursal->codigo_sucursal;
-            // $scufd                 = $cufdVigente->codigo;
-            // $scuis                 = $cuis->codigo;
-            // $nit                   = $empresa->nit;
-
+            else
+                $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionSectorEducativoElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
 
             $header                = $empresa->api_token;
             $url3                  = $UrlSincronizacion->url_servicio;
@@ -1016,6 +1003,8 @@ class FacturaController extends Controller
     public function emitirFacturaCv(Request $request) {
 
         if($request->ajax()){
+
+            // dd($request->all());
 
             $usuario        = Auth::user();
             $empresa        = $usuario->empresa;
@@ -2012,8 +2001,6 @@ class FacturaController extends Controller
 
         if($request->ajax()){
 
-            // dd($request->all());
-
             $usuario        = Auth::user();
             $empresa        = $usuario->empresa;
 
@@ -2993,8 +2980,6 @@ class FacturaController extends Controller
     // ********************  PRUEBAS FACUTRAS SINCRONIZACION   *****************************
     public function pruebas(){
 
-
-
         // $empresa  = Empresa::find(1);
         // $sucursal = Sucursal::where('empresa_id', $empresa->id)
         //                             ->first();
@@ -3762,6 +3747,1854 @@ class FacturaController extends Controller
             echo $formattedDateTime."<br>";
             sleep(2);
         }
+    }
+
+    public function emiteFacturaMasaEspecifico(Request $request){
+
+        // ======================================================================================================================================================
+        // ========================================= EMISION DE FACTURA COMPRA Y VENTA===============================================================
+        // ======================================================================================================================================================
+        /*
+        $datosRequest = [
+            "cliente_id" => "1",
+            "carrito" => [
+                [
+                    "servicio_id"           => "1",
+                    "descripcion"           => "DESARROLLO DE SOFTWARE",
+                    "precio"                => "500.00",
+                    "numero_serie"          => null,
+                    "numero_imei"           => null,
+                    "empresa_id"            => "1",
+                    "cantidad"              => "1",
+                    "total"                 => "500.00",
+                    "descuento"             => "0.00",
+                    "subTotal"              => "500",
+                    "descripcion_adicional" => null
+                ],
+                [
+                    "servicio_id"           => "4",
+                    "descripcion"           => "MANTEQUILLA",
+                    "precio"                => "15.00",
+                    "numero_serie"          => null,
+                    "numero_imei"           => null,
+                    "empresa_id"            => "1",
+                    "cantidad"              => "1",
+                    "total"                 => "15.00",
+                    "descuento"             => "0.00",
+                    "subTotal"              => "15",
+                    "descripcion_adicional" => null
+                ]
+            ],
+            "facturacion_datos_tipo_metodo_pago" => "1",
+            "facturacion_datos_tipo_moneda"      => "1",
+            "tipo_documento"                     => "5",
+            "nit_factura"                        => "5427648016",
+            "razon_factura"                      => "MICAELA ESCOBAR",
+            "tipo_facturacion"                   => "online",
+            "uso_cafc"                           => "No",
+            "numero_factura_cafc"                => null,
+            "execpcion"                          => "false",
+            "complemento"                        => null,
+            "descuento_adicional"                => "0",
+            "monto_total"                        => "515.00"
+        ];
+
+        $usuario        = Auth::user();
+        $empresa        = $usuario->empresa;
+
+        $suscripcion = app(SuscripcionController::class);
+
+        $obtenerSuscripcionVigenteEmpresa = $suscripcion->obtenerSuscripcionVigenteEmpresa($empresa);
+        for ($k=1; $k <= 122 ; $k++) {
+
+            if($obtenerSuscripcionVigenteEmpresa){
+
+                $plan       = $obtenerSuscripcionVigenteEmpresa->plan;
+
+                if($suscripcion->verificarRegistroFacturaByPlan($plan, $empresa, $obtenerSuscripcionVigenteEmpresa)){
+
+                    $empresa_id     = $usuario->empresa_id;
+                    $punto_venta_id = $usuario->punto_venta_id;
+                    $sucursal_id    = $usuario->sucursal_id;
+
+                    $empresa_objeto     = Empresa::find($empresa_id);
+                    $punto_venta_objeto = PuntoVenta::find($punto_venta_id);
+                    $sucursal_objeto    = Sucursal::find($sucursal_id);
+
+                    $cuis_objeto       = Cuis::where('punto_venta_id', $punto_venta_objeto->id)
+                                            ->where('sucursal_id', $sucursal_objeto->id)
+                                            ->where('codigo_ambiente', $empresa_objeto->codigo_ambiente)
+                                            ->first();
+
+                    $documento_sector = 1;
+
+                    $carroVentas                        = $datosRequest['carrito'];
+                    $cliente_id                         = $datosRequest['cliente_id'];
+                    $facturacion_datos_tipo_metodo_pago = $datosRequest['facturacion_datos_tipo_metodo_pago'];
+                    $facturacion_datos_tipo_moneda      = $datosRequest['facturacion_datos_tipo_moneda'];
+                    $tipo_documento                     = $datosRequest['tipo_documento'];
+                    $nit_factura                        = $datosRequest['nit_factura'];
+                    $razon_factura                      = $datosRequest['razon_factura'];
+                    $tipo_facturacion                   = $datosRequest['tipo_facturacion'];
+                    $numero_factura_cafc                = $datosRequest['numero_factura_cafc'];
+                    $execpcion                          = $datosRequest['execpcion'];
+                    $complemento                        = $datosRequest['complemento'];
+                    $descuento_adicional                = $datosRequest['descuento_adicional'];
+                    $monto_total                        = $datosRequest['monto_total'];
+                    $uso_cafc                           = $datosRequest['uso_cafc'];
+                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+
+                    $contenidoabeceraFcv      = array();
+                    $cabeceraFcv              = array();
+                    $contenidoFacturaFcv      = array();
+                    $contenidoDetalleFcv      = array();
+                    $DetalleFcv               = array();
+                    $contenidoFacturaPadreFcv = array();
+                    $idDetalles               = array();
+
+                    $contenidoabeceraFcv['nitEmisor']                    = $empresa_objeto->nit;
+                    $contenidoabeceraFcv['razonSocialEmisor']            = $empresa_objeto->razon_social;
+                    $contenidoabeceraFcv['municipio']                    = $empresa_objeto->municipio;
+                    $contenidoabeceraFcv['telefono']                     = $empresa_objeto->celular;
+                    $contenidoabeceraFcv['numeroFactura']                = null;
+                    $contenidoabeceraFcv['cuf']                          = null;
+                    $contenidoabeceraFcv['cufd']                         = null;
+                    $contenidoabeceraFcv['codigoSucursal']               = $sucursal_objeto->codigo_sucursal;
+                    $contenidoabeceraFcv['direccion']                    = null;
+                    $contenidoabeceraFcv['codigoPuntoVenta']             = null;
+
+                    // PARA LA HORA
+                    $microtime                                                = microtime(true);
+                    $seconds                                                  = floor($microtime);
+                    $milliseconds                                             = round(($microtime - $seconds) * 1000);
+                    $formattedDateTime                                        = date("Y-m-d\TH:i:s.") . str_pad($milliseconds, 3, '0', STR_PAD_LEFT);
+
+                    $contenidoabeceraFcv['fechaEmision']                 = $formattedDateTime;
+                    $contenidoabeceraFcv['nombreRazonSocial']            = $razon_factura;
+                    $contenidoabeceraFcv['codigoTipoDocumentoIdentidad'] = $tipo_documento;
+
+                    $contenidoabeceraFcv['numeroDocumento']              = $nit_factura;
+                    $contenidoabeceraFcv['complemento']                  = ($complemento != null && $complemento != '')? $complemento : null;
+                    $contenidoabeceraFcv['codigoCliente']                = $cliente_id;
+                    $contenidoabeceraFcv['codigoMetodoPago']             = $facturacion_datos_tipo_metodo_pago;
+                    $contenidoabeceraFcv['numeroTarjeta']                = null;
+                    $contenidoabeceraFcv['montoTotal']                   = $monto_total;
+                    $contenidoabeceraFcv['montoTotalSujetoIva']          = $monto_total;
+                    $contenidoabeceraFcv['codigoMoneda']                 = $facturacion_datos_tipo_moneda;
+                    $contenidoabeceraFcv['tipoCambio']                   = 1;
+                    $contenidoabeceraFcv['montoTotalMoneda']             = $monto_total;
+                    $contenidoabeceraFcv['montoGiftCard']                = null;
+                    $contenidoabeceraFcv['descuentoAdicional']           = $descuento_adicional;
+                    $contenidoabeceraFcv['codigoExcepcion']              = ($execpcion === "true")? 1 : 0;
+                    $contenidoabeceraFcv['cafc']                         = null;
+                    $contenidoabeceraFcv['leyenda']                      = $leyenda;
+                    $contenidoabeceraFcv['usuario']                      = $usuario->email;
+                    $contenidoabeceraFcv['codigoDocumentoSector']        = $documento_sector;
+
+                    $cabeceraFcv['cabecera'] = $contenidoabeceraFcv;
+
+                    array_push($contenidoFacturaFcv, $cabeceraFcv);
+
+                    // ----------------- AGREGAMOS EN L ATABLA DETALLES -----------------
+                    foreach($carroVentas as $key => $item){
+
+                        $detalle                        = new Detalle();
+                        $detalle->usuario_creador_id    = $usuario->id;
+                        $detalle->empresa_id            = $empresa_id;
+                        $detalle->sucursal_id           = $sucursal_id;
+                        $detalle->punto_venta_id        = $punto_venta_id;
+                        $detalle->cliente_id            = $cliente_id;
+                        $detalle->servicio_id           = $item['servicio_id'];
+                        $detalle->descripcion_adicional = $item['descripcion_adicional'];
+                        $detalle->numero_serie          = $item['numero_serie'];
+                        $detalle->numero_imei           = $item['numero_imei'];
+                        $detalle->precio                = $item['precio'];
+                        $detalle->cantidad              = $item['cantidad'];
+                        $detalle->total                 = $item['total'];
+                        $detalle->descuento             = $item['descuento'];
+                        $detalle->importe               = $item['subTotal'];
+                        $detalle->fecha                 = date('Y-m-d H:i:s');
+                        $detalle->estado                = 'Parapagar';
+                        $detalle->save();
+
+                        $servicio = Servicio::find($item['servicio_id']);
+
+                        array_push($idDetalles, $detalle->id);
+
+                        // ARMAMOS EL CONTENIDO DEL DETALLE
+                        $contenidoDetalleFcv['actividadEconomica'] = $servicio->siatDependeActividad->codigo_caeb;
+                        $contenidoDetalleFcv['codigoProductoSin']  = $servicio->siatProductoServicio->codigo_producto;
+                        $contenidoDetalleFcv['codigoProducto']     = $servicio->id;
+                        $contenidoDetalleFcv['descripcion']        = $servicio->descripcion."\n".$item['descripcion_adicional'];
+                        $contenidoDetalleFcv['cantidad']           = $item['cantidad'];
+                        $contenidoDetalleFcv['unidadMedida']       = $servicio->siatUnidadMedida->codigo_clasificador;
+                        $contenidoDetalleFcv['precioUnitario']     = $item['precio'];
+                        $contenidoDetalleFcv['montoDescuento']     = $item['descuento'];
+                        $contenidoDetalleFcv['subTotal']           = $item['subTotal'];
+                        $contenidoDetalleFcv['numeroSerie']        = $item['numero_serie'];
+                        $contenidoDetalleFcv['numeroImei']         = $item['numero_imei'];
+
+                        $DetalleFcv['detalle'] = $contenidoDetalleFcv;
+
+                        array_push($contenidoFacturaFcv, $DetalleFcv);
+
+                    }
+
+                    $contenidoFacturaPadreFcv['factura'] = $contenidoFacturaFcv;
+                    $datos                               = $contenidoFacturaPadreFcv;
+                    $valoresCabecera                     = $datos['factura'][0]['cabecera'];
+                    $puntoVenta                          = $punto_venta_objeto->codigoPuntoVenta;
+                    $nitEmisorEmpresa                    = $empresa_objeto->nit;
+                    $sucursalEmpresa                     = $sucursal_objeto->codigo_sucursal;
+
+                    if($uso_cafc === "Si"){
+                        $numeroFacturaEmpresa = $numero_factura_cafc;
+                    }else{
+                        $numeroFacturaEmpresa = $this->numeroFactura($empresa_objeto->id, $sucursal_objeto->id, $punto_venta_objeto->id);
+                        $numeroFacturaEmpresa = ($numeroFacturaEmpresa == null? 1 : ($numeroFacturaEmpresa+1));
+                    }
+
+                    $nitEmisor          = str_pad($nitEmisorEmpresa,13,"0",STR_PAD_LEFT);
+                    $fechaEmision       = str_replace(".","",str_replace(":","",str_replace("-","",str_replace("T", "",$valoresCabecera['fechaEmision']))));
+                    $sucursal           = str_pad($sucursalEmpresa,4,"0",STR_PAD_LEFT);
+                    $modalidad          = $empresa_objeto->codigo_modalidad;
+                    $numeroFactura      = str_pad($numeroFacturaEmpresa,10,"0",STR_PAD_LEFT);
+
+                    if($tipo_facturacion === "online"){
+                        $tipoEmision        = 1;
+                    }
+                    else{
+                        if($uso_cafc === "Si"){
+                            $datos['factura'][0]['cabecera']['cafc']          = $empresa_objeto->cafc;
+                            $datos['factura'][0]['cabecera']['numeroFactura'] = $numero_factura_cafc;
+                        }
+                        $tipoEmision = 2;
+                    }
+
+                    $tipoFactura        = ($documento_sector == 8)? 2 : 1; // Factura sin Derecho a Crédito Fiscal
+                    $tipoFacturaSector  = str_pad($valoresCabecera['codigoDocumentoSector'],2,"0",STR_PAD_LEFT);;
+                    $puntoVenta         = str_pad($puntoVenta,4,"0",STR_PAD_LEFT);
+
+                    $cadena = $nitEmisor.$fechaEmision.$sucursal.$modalidad.$tipoEmision.$tipoFactura.$tipoFacturaSector.$numeroFactura.$puntoVenta;
+
+                    // VERIFICAMOS SI EXISTE LOS DATOS SUFICINTES APRA EL MANDAO DEL CORREO
+                    $cliente        = Cliente::find($cliente_id);
+                    $swFacturaEnvio = true;
+                    if(!($cliente && $cliente->correo != null && $cliente->correo != '')){
+                        // $data['estado'] = "error_email";
+                        // $data['text']    = "La persona no tiene correo";
+                        // return $data;
+                        $swFacturaEnvio = false;
+                    }
+
+                    $cliente->nit              = $datos['factura'][0]['cabecera']['numeroDocumento'];
+                    $cliente->razon_social     = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
+                    $cliente->save();
+
+                    // CODIGO DE JOEL ESETE LO HIZMOMOS NOSOTROS
+                    $cadenaConM11 = $cadena.$this->calculaDigitoMod11($cadena, 1, 9, false);
+                    if($tipo_facturacion === "online"){
+
+                        $siat = app(SiatController::class);
+
+                        $cufdVigente = json_decode(
+                            $siat->verificarConeccion(
+                                $empresa_objeto->id,
+                                $sucursal_objeto->id,
+                                $cuis_objeto->id,
+                                $punto_venta_objeto->id,
+                                $empresa_objeto->codigo_ambiente
+                            ));
+
+
+                        $scufd                  = $cufdVigente->codigo;
+                        $scodigoControl         = $cufdVigente->codigo_control;
+                        $sdireccion             = $cufdVigente->direccion;
+                        $sfechaVigenciaCufd     = $cufdVigente->fecha_vigencia;
+
+                    }else{
+                        $eventoSignificadoControlller = app(EventoSignificativoController::class);
+
+                        $empresa_id      = $empresa_objeto->id;
+                        $sucursal_id     = $sucursal_objeto->id;
+                        $punto_venta_id  = $punto_venta_objeto->id;
+                        $codigo_ambiente = $empresa_objeto->codigo_ambiente;
+
+                        $datosCufdOffLine             = $eventoSignificadoControlller->sacarCufdVigenteFueraLinea(
+                            $empresa_id,
+                            $sucursal_id,
+                            $punto_venta_id,
+                            $codigo_ambiente
+                        );
+
+                        if($datosCufdOffLine['estado'] === "success"){
+                            $scufd                  = $datosCufdOffLine['scufd'];
+                            $scodigoControl         = $datosCufdOffLine['scodigoControl'];
+                            $sdireccion             = $datosCufdOffLine['sdireccion'];
+                            $sfechaVigenciaCufd     = $datosCufdOffLine['sfechaVigenciaCufd'];
+                        }else{
+
+                            $data['estado'] = "error";
+                            $data['text']    = "ERROR AL RECUPERAR EL CUFD ANTIGUO";
+
+                            return $data;
+                        }
+                    }
+
+                    $cufPro                                                 = $this->generarBase16($cadenaConM11).$scodigoControl;
+
+                    $datos['factura'][0]['cabecera']['numeroFactura']     = $numeroFacturaEmpresa;
+                    $datos['factura'][0]['cabecera']['cuf']                 = $cufPro;
+                    $datos['factura'][0]['cabecera']['cufd']                = $scufd;
+                    $datos['factura'][0]['cabecera']['direccion']           = $sdireccion;
+                    $datos['factura'][0]['cabecera']['codigoPuntoVenta']    = $puntoVenta;
+
+                    $temporal = $datos['factura'];
+
+                    if($empresa_objeto->codigo_modalidad == "1"){
+                        $dar = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                                <facturaElectronicaCompraVenta xsi:noNamespaceSchemaLocation="facturaElectronicaCompraVenta.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                                </facturaElectronicaCompraVenta>';
+                    }else{
+                        $dar = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                                <facturaComputarizadaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="facturaComputarizadaCompraVenta.xsd">
+                                </facturaComputarizadaCompraVenta>';
+                    }
+
+                    $xml_temporal = new SimpleXMLElement($dar);
+                    $this->formato_xml($temporal, $xml_temporal);
+
+                    $nombreArchivo = $cufPro."_".$numeroFacturaEmpresa."_".$nitEmisorEmpresa;
+
+                    $xml_temporal->asXML("assets/docs/facturaxml_$nombreArchivo.xml");
+
+                    //  =========================   DE AQUI COMENZAMOS EL FIRMADO CHEEEEE ==============================\
+                    if($empresa_objeto->codigo_modalidad == "1"){
+
+                        if(!is_null($empresa_objeto->archivop12)){
+                            // dd($empresa_objeto->archivop12, $empresa_objeto->contrasenia);
+                            $firmador = new FirmadorBoliviaSingle($empresa_objeto->archivop12, $empresa_objeto->contrasenia);
+                            $xmlFirmado = $firmador->firmarRuta("assets/docs/facturaxml_$nombreArchivo.xml");
+                            file_put_contents("assets/docs/facturaxml_$nombreArchivo.xml", $xmlFirmado);
+                        }else{
+                            $data['text']   = 'No existe el archivo .p12 de firmado';
+                            $data['estado'] = 'error_firma';
+
+                            return $data;
+                        }
+                    }
+                    // ========================== FINAL DE AQUI COMENZAMOS EL FIRMADO CHEEEEE  ==========================
+
+                    // COMPRIMIMOS EL ARCHIVO A ZIP
+                    $gzdato = gzencode(file_get_contents("assets/docs/facturaxml_$nombreArchivo.xml",9));
+                    $fiape = fopen("assets/docs/facturaxml_$nombreArchivo.xml.zip","w");
+                    fwrite($fiape,$gzdato);
+                    fclose($fiape);
+
+                    //  hashArchivo EL ARCHIVO
+                    $archivoZip = $gzdato;
+                    $hashArchivo = hash("sha256", file_get_contents("assets/docs/facturaxml_$nombreArchivo.xml"));
+
+                    if($tipo_facturacion === "online"){
+
+                        $urlApiServicioSiat = new UrlApiServicioSiat();
+                        $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionCompraVentaElctronica($empresa_objeto->codigo_ambiente, $empresa_objeto->codigo_modalidad);
+
+                        $header                 = $empresa_objeto->api_token;
+                        $url3                   = $UrlSincronizacion->url_servicio;
+                        $codigoAmbiente         = $empresa_objeto->codigo_ambiente;
+                        $codigoDocumentoSector  = $documento_sector;
+                        $codigoModalidad        = $empresa_objeto->codigo_modalidad;
+                        $codigoPuntoVenta       = $punto_venta_objeto->codigoPuntoVenta;
+                        $codigoSistema          = $empresa_objeto->codigo_sistema;
+                        $codigoSucursal         = $sucursal_objeto->codigo_sucursal;
+                        $scufd                  = $cufdVigente->codigo;
+                        $scuis                  = $cuis_objeto->codigo;
+                        $nit                    = $empresa_objeto->nit;
+                        $tipoFacturaDocumento   = 1;
+
+                        $siat = app(SiatController::class);
+                        $for  = json_decode($siat->recepcionFactura(
+                            $header,
+                            $url3,
+                            $codigoAmbiente,
+                            $codigoDocumentoSector,
+                            $codigoModalidad,
+                            $codigoPuntoVenta,
+                            $codigoSistema,
+                            $codigoSucursal,
+                            $scufd,
+                            $scuis,
+                            $nit,
+                            $tipoFacturaDocumento,
+
+                            $archivoZip, $valoresCabecera['fechaEmision'],$hashArchivo)
+                        );
+
+                        // NUEVO CODIGO PARA EVITAR ERROES DE GENERACION DE FACTURAS Y EVITAR QUE SE CREE MAS FACTURAS ASI NOMAS
+                        if($for->estado === "success"){
+
+                            // $codigo_descripcion = $for->resultado->RespuestaServicioFacturacion->codigoDescripcion;
+                            if($for->resultado->RespuestaServicioFacturacion->transaccion){
+                                $codigo_descripcion = $for->resultado->RespuestaServicioFacturacion->codigoDescripcion;
+
+                                $documentos_sector_model = $empresa_objeto->empresasDocumentosTipoSector($documento_sector);
+
+                                // ESTO ES PARA LA FACTURA LA CREACION
+                                $facturaVerdad                           = new Factura();
+                                $facturaVerdad->usuario_creador_id       = Auth::user()->id;
+                                $facturaVerdad->cliente_id               = $cliente->id;
+                                $facturaVerdad->empresa_id               = $empresa_objeto->id;
+                                $facturaVerdad->sucursal_id              = $sucursal_objeto->id;
+                                $facturaVerdad->punto_venta_id           = $punto_venta_objeto->id;
+                                $facturaVerdad->cufd_id                  = $cufdVigente->id;
+                                $facturaVerdad->siat_documento_sector_id = $documentos_sector_model->id;
+                                $facturaVerdad->fecha                    = $datos['factura'][0]['cabecera']['fechaEmision'];
+                                $facturaVerdad->nit                      = $datos['factura'][0]['cabecera']['numeroDocumento'];
+                                $facturaVerdad->razon_social             = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
+                                $facturaVerdad->numero_factura           = $numeroFacturaEmpresa;
+                                $facturaVerdad->facturado                = "Si";
+                                $facturaVerdad->total                    = $datos['factura'][0]['cabecera']['montoTotal'];
+                                $facturaVerdad->monto_total_subjeto_iva  = $datos['factura'][0]['cabecera']['montoTotalSujetoIva'];
+                                $facturaVerdad->descuento_adicional      = $datos['factura'][0]['cabecera']['descuentoAdicional'];
+                                $facturaVerdad->cuf                      = $datos['factura'][0]['cabecera']['cuf'];
+                                $facturaVerdad->productos_xml            = file_get_contents("assets/docs/facturaxml_$nombreArchivo.xml");
+                                $facturaVerdad->codigo_descripcion       = $codigo_descripcion;
+                                $facturaVerdad->codigo_recepcion         = $for->resultado->RespuestaServicioFacturacion->codigoRecepcion;
+                                $facturaVerdad->codigo_transaccion       = $for->resultado->RespuestaServicioFacturacion->transaccion;
+                                $facturaVerdad->descripcion              = NULL;
+                                $facturaVerdad->uso_cafc                 = "No";
+                                $facturaVerdad->registro_compra          = 'No';
+                                $facturaVerdad->tipo_factura             = "online";
+                                $facturaVerdad->save();
+
+                                // AHORA AREMOS PARA LOS PAGOS
+                                Detalle::whereIn('id', $idDetalles)
+                                        ->update([
+                                            'estado'     => 'Finalizado',
+                                            'factura_id' => $facturaVerdad->id
+                                        ]);
+
+                                // DE AQUI VERIFICAMOS SI ES PRODUCTO O SERVICIO
+                                foreach($idDetalles as $idDetalle){
+
+                                    $detalle  = Detalle::find($idDetalle);
+                                    $servicio = $detalle->servicio;
+
+                                    if($servicio->tipo == 'producto'){
+                                        $movimiento                     = new Movimiento();
+                                        $movimiento->usuario_creador_id = $usuario->id;
+                                        $movimiento->sucursal_id        = $sucursal_objeto->id;
+                                        $movimiento->servicio_id        = $servicio->id;
+                                        $movimiento->salida             = $detalle->cantidad;
+                                        $movimiento->ingreso            = 0;
+                                        $movimiento->fecha              = date('Y-m-d H:i:s');
+                                        $movimiento->descripcion        = "VENTA";
+                                        $movimiento->save();
+                                    }
+
+                                }
+
+                                $data['estado'] = $codigo_descripcion;
+                                $data['numero'] = $facturaVerdad->id;
+
+                                // ***************** ENVIAMOS EL CORREO DE LA FACTURA *****************
+                                // if($swFacturaEnvio){
+                                //     $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                                //     $this->enviaCorreo(
+                                //         $cliente->correo,
+                                //         $nombre,
+                                //         $facturaVerdad->numero,
+                                //         $facturaVerdad->fecha,
+                                //         $facturaVerdad->id
+                                //     );
+                                // }
+
+                            }else{
+                                $data['estado'] = "RECHAZADA";
+                                $data['text'] = json_encode($for->resultado->RespuestaServicioFacturacion->mensajesList);
+                            }
+                        }else{
+                            $data['estado'] = "RECHAZADA";
+                            $data['text'] = $for->msg;
+                        }
+                    }else{
+
+                        // ESTO ES PARA LA FACTURA LA CREACION
+                        $documentos_sector_model = $empresa_objeto->empresasDocumentosTipoSector($documento_sector);
+
+                        $facturaVerdad                          = new Factura();
+                        $facturaVerdad->usuario_creador_id      = Auth::user()->id;
+                        $facturaVerdad->cliente_id              = $cliente->id;
+                        $facturaVerdad->empresa_id              = $empresa_objeto->id;
+                        $facturaVerdad->sucursal_id             = $sucursal_objeto->id;
+                        $facturaVerdad->punto_venta_id          = $punto_venta_objeto->id;
+                        $facturaVerdad->cufd_id                 = $datosCufdOffLine['scufd_id'];
+                        $facturaVerdad->fecha                   = $datos['factura'][0]['cabecera']['fechaEmision'];
+                        $facturaVerdad->nit                     = $datos['factura'][0]['cabecera']['numeroDocumento'];
+                        $facturaVerdad->razon_social            = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
+
+                        if($uso_cafc === "Si")
+                            $facturaVerdad->numero_cafc          = $numeroFacturaEmpresa;
+                        else
+                            $facturaVerdad->numero_factura       = $numeroFacturaEmpresa;
+
+                        $facturaVerdad->facturado                = "Si";
+                        $facturaVerdad->total                    = $datos['factura'][0]['cabecera']['montoTotal'];
+                        $facturaVerdad->monto_total_subjeto_iva  = $datos['factura'][0]['cabecera']['montoTotalSujetoIva'];
+                        $facturaVerdad->descuento_adicional      = $datos['factura'][0]['cabecera']['descuentoAdicional'];
+                        $facturaVerdad->cuf                      = $datos['factura'][0]['cabecera']['cuf'];
+                        $facturaVerdad->productos_xml            = file_get_contents("assets/docs/facturaxml_$nombreArchivo.xml");
+                        $facturaVerdad->codigo_descripcion       = NULL;
+                        $facturaVerdad->codigo_recepcion         = NULL;
+                        $facturaVerdad->codigo_transaccion       = NULL;
+                        $facturaVerdad->descripcion              = NULL;
+                        $facturaVerdad->uso_cafc                 = ($uso_cafc === "Si")? "Si" : "No";
+                        $facturaVerdad->tipo_factura             = "offline";
+                        $facturaVerdad->registro_compra          = 'No';
+                        $facturaVerdad->siat_documento_sector_id = $documentos_sector_model->id;
+
+                        $facturaVerdad->save();
+
+                        // AHORA AREMOS PARA LOS PAGOS
+                        Detalle::whereIn('id', $idDetalles)
+                        ->update([
+                            'estado'     => 'Finalizado',
+                            'factura_id' => $facturaVerdad->id
+                        ]);
+
+                        if($swFacturaEnvio){
+                            // ***************** ENVIAMOS EL CORREO DE LA FACTURA *****************
+                            $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                            $this->enviaCorreo(
+                                $cliente->correo,
+                                $nombre,
+                                $facturaVerdad->numero,
+                                $facturaVerdad->fecha,
+                                $facturaVerdad->id
+                            );
+                        }
+
+                        $data['estado']     = 'OFFLINE';
+                    }
+
+                    $archivo = "assets/docs/facturaxml_$nombreArchivo.xml";
+                    $archivoZip = "assets/docs/facturaxml_$nombreArchivo.xml.zip";
+                    // Verifica si el archivo existe antes de intentar eliminarlo
+                    if (file_exists($archivo))
+                        unlink($archivo);
+
+                    if(file_exists($archivoZip))
+                        unlink($archivoZip);
+
+                }else{
+                    $data['text']   = 'Alcanzo la cantidad maxima registros de facturas, solicite un plan superior.';
+                    $data['estado'] = 'error_sus';
+                }
+            }else{
+                $data['text']   = 'No existe suscripciones activas!, , solicite una suscripcion a un plan vigente.';
+                $data['estado'] = 'error_sus';
+            }
+
+            echo $formattedDateTime."<br>";
+            sleep(2);
+
+        }
+        */
+        // ======================================================================================================================================================
+        // ========================================= EMISION DE FACTURA COMPRA Y VENTA===============================================================
+        // ======================================================================================================================================================
+
+
+
+
+        // ======================================================================================================================================================
+        // ========================================= EMISION DE FACTURA TASA CERO ===============================================================
+        // ======================================================================================================================================================
+
+        /*
+        $datosRequest = [
+            "cliente_id" => "2",
+            "carrito" => [
+                [
+                    "servicio_id"           => "2",
+                    "descripcion"           => "PRODUCTO TASA CERO",
+                    "precio"                => "50.00",
+                    "empresa_id"            => "1",
+                    "cantidad"              => "1",
+                    "total"                 => "50.00",
+                    "descuento"             => "0.00",
+                    "subTotal"              => "50",
+                    "descripcion_adicional" => null
+                ]
+            ],
+            "facturacion_datos_tipo_metodo_pago" => "1",
+            "facturacion_datos_tipo_moneda"      => "1",
+            "tipo_documento"                     => "5",
+            "nit_factura"                        => "451059024",
+            "razon_factura"                      => "JUAN",
+            "tipo_facturacion"                   => "online",
+            "uso_cafc"                           => "No",
+            "numero_factura_cafc"                => null,
+            "execpcion"                          => "false",
+            "complemento"                        => null,
+            "descuento_adicional"                => "0",
+            "monto_total"                        => "50.00"
+        ];
+
+
+        $usuario        = Auth::user();
+        $empresa        = $usuario->empresa;
+
+        $suscripcion = app(SuscripcionController::class);
+
+        $obtenerSuscripcionVigenteEmpresa = $suscripcion->obtenerSuscripcionVigenteEmpresa($empresa);
+
+        for ($k=1; $k <= 125 ; $k++) {
+
+            if($obtenerSuscripcionVigenteEmpresa){
+
+                $plan       = $obtenerSuscripcionVigenteEmpresa->plan;
+
+                if($suscripcion->verificarRegistroFacturaByPlan($plan, $empresa, $obtenerSuscripcionVigenteEmpresa)){
+
+                    $empresa_id     = $usuario->empresa_id;
+                    $punto_venta_id = $usuario->punto_venta_id;
+                    $sucursal_id    = $usuario->sucursal_id;
+
+                    $empresa_objeto     = Empresa::find($empresa_id);
+                    $punto_venta_objeto = PuntoVenta::find($punto_venta_id);
+                    $sucursal_objeto    = Sucursal::find($sucursal_id);
+
+                    $cuis_objeto       = Cuis::where('punto_venta_id', $punto_venta_objeto->id)
+                                    ->where('sucursal_id', $sucursal_objeto->id)
+                                    ->where('codigo_ambiente', $empresa_objeto->codigo_ambiente)
+                                    ->first();
+
+                    $documento_sector = 8;
+
+                    $carroVentas                        = $datosRequest['carrito'];
+                    $cliente_id                         = $datosRequest['cliente_id'];
+                    $facturacion_datos_tipo_metodo_pago = $datosRequest['facturacion_datos_tipo_metodo_pago'];
+                    $facturacion_datos_tipo_moneda      = $datosRequest['facturacion_datos_tipo_moneda'];
+                    $tipo_documento                     = $datosRequest['tipo_documento'];
+                    $nit_factura                        = $datosRequest['nit_factura'];
+                    $razon_factura                      = $datosRequest['razon_factura'];
+                    $tipo_facturacion                   = $datosRequest['tipo_facturacion'];
+                    $numero_factura_cafc                = $datosRequest['numero_factura_cafc'];
+                    $execpcion                          = $datosRequest['execpcion'];
+                    $complemento                        = $datosRequest['complemento'];
+                    $descuento_adicional                = $datosRequest['descuento_adicional'];
+                    $monto_total                        = $datosRequest['monto_total'];
+                    $uso_cafc                           = $datosRequest['uso_cafc'];
+                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+
+                    $contenidoabeceraFcv      = array();
+                    $cabeceraFcv              = array();
+                    $contenidoFacturaFcv      = array();
+                    $contenidoDetalleFcv      = array();
+                    $DetalleFcv               = array();
+                    $contenidoFacturaPadreFcv = array();
+                    $idDetalles               = array();
+
+                    $contenidoabeceraFcv['nitEmisor']                    = $empresa_objeto->nit;
+                    $contenidoabeceraFcv['razonSocialEmisor']            = $empresa_objeto->razon_social;
+                    $contenidoabeceraFcv['municipio']                    = $empresa_objeto->municipio;
+                    $contenidoabeceraFcv['telefono']                     = $empresa_objeto->celular;
+                    $contenidoabeceraFcv['numeroFactura']                = null;
+                    $contenidoabeceraFcv['cuf']                          = null;
+                    $contenidoabeceraFcv['cufd']                         = null;
+                    $contenidoabeceraFcv['codigoSucursal']               = $sucursal_objeto->codigo_sucursal;
+                    $contenidoabeceraFcv['direccion']                    = null;
+                    $contenidoabeceraFcv['codigoPuntoVenta']             = null;
+
+                    // PARA LA HORA
+                    $microtime                                                = microtime(true);
+                    $seconds                                                  = floor($microtime);
+                    $milliseconds                                             = round(($microtime - $seconds) * 1000);
+                    $formattedDateTime                                        = date("Y-m-d\TH:i:s.") . str_pad($milliseconds, 3, '0', STR_PAD_LEFT);
+
+                    $contenidoabeceraFcv['fechaEmision']                 = $formattedDateTime;
+                    $contenidoabeceraFcv['nombreRazonSocial']            = $razon_factura;
+                    $contenidoabeceraFcv['codigoTipoDocumentoIdentidad'] = $tipo_documento;
+
+                    $contenidoabeceraFcv['numeroDocumento']              = $nit_factura;
+                    $contenidoabeceraFcv['complemento']                  = ($complemento != null && $complemento != '')? $complemento : null;
+                    $contenidoabeceraFcv['codigoCliente']                = $cliente_id;
+                    $contenidoabeceraFcv['codigoMetodoPago']             = $facturacion_datos_tipo_metodo_pago;
+                    $contenidoabeceraFcv['numeroTarjeta']                = null;
+                    $contenidoabeceraFcv['montoTotal']                   = $monto_total;
+                    $contenidoabeceraFcv['montoTotalSujetoIva']          = 0; //PARA ESTE SECTOR ENVIAR 0
+                    $contenidoabeceraFcv['codigoMoneda']                 = $facturacion_datos_tipo_moneda;
+                    $contenidoabeceraFcv['tipoCambio']                   = 1;
+                    $contenidoabeceraFcv['montoTotalMoneda']             = $monto_total;
+                    $contenidoabeceraFcv['montoGiftCard']                = null;
+                    $contenidoabeceraFcv['descuentoAdicional']           = $descuento_adicional;
+                    $contenidoabeceraFcv['codigoExcepcion']              = ($execpcion === "true")? 1 : 0;
+                    $contenidoabeceraFcv['cafc']                         = null;
+                    $contenidoabeceraFcv['leyenda']                      = $leyenda;
+                    $contenidoabeceraFcv['usuario']                      = $usuario->email;
+                    $contenidoabeceraFcv['codigoDocumentoSector']        = $documento_sector;
+
+                    $cabeceraFcv['cabecera'] = $contenidoabeceraFcv;
+
+                    array_push($contenidoFacturaFcv, $cabeceraFcv);
+
+                    // ----------------- AGREGAMOS EN L ATABLA DETALLES -----------------
+                    foreach($carroVentas as $key => $item){
+
+                        $detalle                        = new Detalle();
+                        $detalle->usuario_creador_id    = $usuario->id;
+                        $detalle->empresa_id            = $empresa_id;
+                        $detalle->sucursal_id           = $sucursal_id;
+                        $detalle->punto_venta_id        = $punto_venta_id;
+                        $detalle->cliente_id            = $cliente_id;
+                        $detalle->servicio_id           = $item['servicio_id'];
+                        $detalle->descripcion_adicional = $item['descripcion_adicional'];
+                        // $detalle->numero_serie          = $item['numero_serie'];
+                        // $detalle->numero_imei           = $item['numero_imei'];
+                        $detalle->precio                = $item['precio'];
+                        $detalle->cantidad              = $item['cantidad'];
+                        $detalle->total                 = $item['total'];
+                        $detalle->descuento             = $item['descuento'];
+                        $detalle->importe               = $item['subTotal'];
+                        $detalle->fecha                 = date('Y-m-d H:i:s');
+                        $detalle->estado                = 'Parapagar';
+                        $detalle->save();
+
+                        $servicio = Servicio::find($item['servicio_id']);
+
+                        array_push($idDetalles, $detalle->id);
+
+                        // ARMAMOS EL CONTENIDO DEL DETALLE
+                        $contenidoDetalleFcv['actividadEconomica'] = $servicio->siatDependeActividad->codigo_caeb;
+                        $contenidoDetalleFcv['codigoProductoSin']  = $servicio->siatProductoServicio->codigo_producto;
+                        $contenidoDetalleFcv['codigoProducto']     = $servicio->id;
+                        $contenidoDetalleFcv['descripcion']        = $servicio->descripcion."\n".$item['descripcion_adicional'];
+                        $contenidoDetalleFcv['cantidad']           = $item['cantidad'];
+                        $contenidoDetalleFcv['unidadMedida']       = $servicio->siatUnidadMedida->codigo_clasificador;
+                        $contenidoDetalleFcv['precioUnitario']     = $item['precio'];
+                        $contenidoDetalleFcv['montoDescuento']     = $item['descuento'];
+                        $contenidoDetalleFcv['subTotal']           = $item['subTotal'];
+                        // $contenidoDetalleFcv['numeroSerie']        = $item['numero_serie'];
+                        // $contenidoDetalleFcv['numeroImei']         = $item['numero_imei'];
+
+                        $DetalleFcv['detalle'] = $contenidoDetalleFcv;
+
+                        array_push($contenidoFacturaFcv, $DetalleFcv);
+
+                    }
+
+                    $contenidoFacturaPadreFcv['factura'] = $contenidoFacturaFcv;
+
+                    $datos           = $contenidoFacturaPadreFcv;
+                    $valoresCabecera = $datos['factura'][0]['cabecera'];
+                    $puntoVenta      = $punto_venta_objeto->codigoPuntoVenta;
+
+                    $nitEmisorEmpresa     = $empresa_objeto->nit;
+                    $sucursalEmpresa      = $sucursal_objeto->codigo_sucursal;
+
+                    if($uso_cafc === "Si"){
+                        $numeroFacturaEmpresa = $numero_factura_cafc;
+                    }else{
+                        $numeroFacturaEmpresa = $this->numeroFactura($empresa_objeto->id, $sucursal_objeto->id, $punto_venta_objeto->id);
+                        $numeroFacturaEmpresa = ($numeroFacturaEmpresa == null? 1 : ($numeroFacturaEmpresa+1));
+                    }
+
+                    $nitEmisor          = str_pad($nitEmisorEmpresa,13,"0",STR_PAD_LEFT);
+                    $fechaEmision       = str_replace(".","",str_replace(":","",str_replace("-","",str_replace("T", "",$valoresCabecera['fechaEmision']))));
+                    $sucursal           = str_pad($sucursalEmpresa,4,"0",STR_PAD_LEFT);
+                    $modalidad          = $empresa_objeto->codigo_modalidad;
+                    $numeroFactura      = str_pad($numeroFacturaEmpresa,10,"0",STR_PAD_LEFT);
+
+                    if($tipo_facturacion === "online"){
+                        $tipoEmision        = 1;
+                    }
+                    else{
+                        if($uso_cafc === "Si"){
+                            $datos['factura'][0]['cabecera']['cafc']          = $empresa_objeto->cafc;
+                            $datos['factura'][0]['cabecera']['numeroFactura'] = $numero_factura_cafc;
+                        }
+                        $tipoEmision = 2;
+                    }
+
+                    $tipoFactura        = ($documento_sector == 8)? 2 : 1; // Factura sin Derecho a Crédito Fiscal
+                    $tipoFacturaSector  = str_pad($valoresCabecera['codigoDocumentoSector'],2,"0",STR_PAD_LEFT);;
+                    $puntoVenta         = str_pad($puntoVenta,4,"0",STR_PAD_LEFT);
+
+                    $cadena = $nitEmisor.$fechaEmision.$sucursal.$modalidad.$tipoEmision.$tipoFactura.$tipoFacturaSector.$numeroFactura.$puntoVenta;
+
+                    // VERIFICAMOS SI EXISTE LOS DATOS SUFICINTES APRA EL MANDAO DEL CORREO
+                    $cliente = Cliente::find($cliente_id);
+                    $swFacturaEnvio = true;
+                    if(!($cliente && $cliente->correo != null && $cliente->correo != '')){
+                        // $data['estado'] = "error_email";
+                        // $data['text']    = "La persona no tiene correo";
+                        // return $data;
+                        $swFacturaEnvio = false;
+                    }
+                    $cliente->nit              = $datos['factura'][0]['cabecera']['numeroDocumento'];
+                    $cliente->razon_social     = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
+                    $cliente->save();
+
+                    // CODIGO DE JOEL ESETE LO HIZMOMOS NOSOTROS
+                    $cadenaConM11 = $cadena.$this->calculaDigitoMod11($cadena, 1, 9, false);
+                    if($tipo_facturacion === "online"){
+
+                        $siat = app(SiatController::class);
+
+                        $cufdVigente = json_decode(
+                            $siat->verificarConeccion(
+                                $empresa_objeto->id,
+                                $sucursal_objeto->id,
+                                $cuis_objeto->id,
+                                $punto_venta_objeto->id,
+                                $empresa_objeto->codigo_ambiente
+                            ));
+
+                        $scufd                  = $cufdVigente->codigo;
+                        $scodigoControl         = $cufdVigente->codigo_control;
+                        $sdireccion             = $cufdVigente->direccion;
+                        $sfechaVigenciaCufd     = $cufdVigente->fecha_vigencia;
+
+                    }else{
+                        $eventoSignificadoControlller = app(EventoSignificativoController::class);
+
+                        $empresa_id      = $empresa_objeto->id;
+                        $sucursal_id     = $sucursal_objeto->id;
+                        $punto_venta_id  = $punto_venta_objeto->id;
+                        $codigo_ambiente = $empresa_objeto->codigo_ambiente;
+
+                        $datosCufdOffLine             = $eventoSignificadoControlller->sacarCufdVigenteFueraLinea(
+                            $empresa_id,
+                            $sucursal_id,
+                            $punto_venta_id,
+                            $codigo_ambiente
+                        );
+
+                        if($datosCufdOffLine['estado'] === "success"){
+                            $scufd                  = $datosCufdOffLine['scufd'];
+                            $scodigoControl         = $datosCufdOffLine['scodigoControl'];
+                            $sdireccion             = $datosCufdOffLine['sdireccion'];
+                            $sfechaVigenciaCufd     = $datosCufdOffLine['sfechaVigenciaCufd'];
+                        }else{
+
+                            $data['estado'] = "error";
+                            $data['text']    = "ERROR AL RECUPERAR EL CUFD ANTIGUO";
+
+                            return $data;
+                        }
+                    }
+
+                    $cufPro                                                 = $this->generarBase16($cadenaConM11).$scodigoControl;
+
+                    $datos['factura'][0]['cabecera']['numeroFactura']     = $numeroFacturaEmpresa;
+                    $datos['factura'][0]['cabecera']['cuf']                 = $cufPro;
+                    $datos['factura'][0]['cabecera']['cufd']                = $scufd;
+                    $datos['factura'][0]['cabecera']['direccion']           = $sdireccion;
+                    $datos['factura'][0]['cabecera']['codigoPuntoVenta']    = $puntoVenta;
+
+                    $temporal = $datos['factura'];
+
+                    if($empresa_objeto->codigo_modalidad == "1"){
+                        $dar = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                                <facturaElectronicaTasaCero xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="facturaElectronicaTasaCero.xsd">
+                                </facturaElectronicaTasaCero>';
+                    }else{
+                        $dar = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                                <facturaComputarizadaTasaCero xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="facturaComputarizadaTasaCero.xsd">
+                                </facturaComputarizadaTasaCero>';
+                    }
+
+                    $xml_temporal = new SimpleXMLElement($dar);
+                    $this->formato_xml($temporal, $xml_temporal);
+
+                    $nombreArchivo = $cufPro."_".$numeroFacturaEmpresa."_".$nitEmisorEmpresa;
+
+                    $xml_temporal->asXML("assets/docs/facturaxmlTasaCero_$nombreArchivo.xml");
+
+                    //  =========================   DE AQUI COMENZAMOS EL FIRMADO CHEEEEE ==============================\
+                    if($empresa_objeto->codigo_modalidad == "1"){
+                        if(!is_null($empresa_objeto->archivop12)){
+                            // dd($empresa_objeto->archivop12, $empresa_objeto->contrasenia);
+                            $firmador = new FirmadorBoliviaSingle($empresa_objeto->archivop12, $empresa_objeto->contrasenia);
+                            $xmlFirmado = $firmador->firmarRuta("assets/docs/facturaxmlTasaCero_$nombreArchivo.xml");
+                            file_put_contents("assets/docs/facturaxmlTasaCero_$nombreArchivo.xml", $xmlFirmado);
+                        }else{
+                            $data['text']   = 'No existe el archivo .p12 de firmado';
+                            $data['estado'] = 'error_firma';
+
+                            return $data;
+                        }
+                    }
+                    // ========================== FINAL DE AQUI COMENZAMOS EL FIRMADO CHEEEEE  ==========================
+
+                    // COMPRIMIMOS EL ARCHIVO A ZIP
+                    $gzdato = gzencode(file_get_contents("assets/docs/facturaxmlTasaCero_$nombreArchivo.xml",9));
+                    $fiape = fopen("assets/docs/facturaxmlTasaCero_$nombreArchivo.xml.zip","w");
+                    fwrite($fiape,$gzdato);
+                    fclose($fiape);
+
+                    //  hashArchivo EL ARCHIVO
+                    $archivoZip = $gzdato;
+                    $hashArchivo = hash("sha256", file_get_contents("assets/docs/facturaxmlTasaCero_$nombreArchivo.xml"));
+
+                    if($tipo_facturacion === "online"){
+
+                        $urlApiServicioSiat = new UrlApiServicioSiat();
+                        $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionTasaCeroElectronica($empresa_objeto->codigo_ambiente, $empresa_objeto->codigo_modalidad);
+
+                        $header                 = $empresa_objeto->api_token;
+                        $url3                   = $UrlSincronizacion->url_servicio;
+                        $codigoAmbiente         = $empresa_objeto->codigo_ambiente;
+                        $codigoDocumentoSector  = $documento_sector;
+                        $codigoModalidad        = $empresa_objeto->codigo_modalidad;
+                        $codigoPuntoVenta       = $punto_venta_objeto->codigoPuntoVenta;
+                        $codigoSistema          = $empresa_objeto->codigo_sistema;
+                        $codigoSucursal         = $sucursal_objeto->codigo_sucursal;
+                        $scufd                  = $cufdVigente->codigo;
+                        $scuis                  = $cuis_objeto->codigo;
+                        $nit                    = $empresa_objeto->nit;
+                        $tipoFacturaDocumento   = 2;
+
+                        $siat = app(SiatController::class);
+                        $for  = json_decode($siat->recepcionFactura(
+                            $header,
+                            $url3,
+                            $codigoAmbiente,
+                            $codigoDocumentoSector,
+                            $codigoModalidad,
+                            $codigoPuntoVenta,
+                            $codigoSistema,
+                            $codigoSucursal,
+                            $scufd,
+                            $scuis,
+                            $nit,
+                            $tipoFacturaDocumento,
+
+                            $archivoZip, $valoresCabecera['fechaEmision'],$hashArchivo)
+                        );
+
+                        // NUEVO CODIGO PARA EVITAR ERROES DE GENERACION DE FACTURAS Y EVITAR QUE SE CREE MAS FACTURAS ASI NOMAS
+
+                        if($for->estado === "success"){
+
+                            // $codigo_descripcion = $for->resultado->RespuestaServicioFacturacion->codigoDescripcion;
+                            if($for->resultado->RespuestaServicioFacturacion->transaccion){
+                                $codigo_descripcion = $for->resultado->RespuestaServicioFacturacion->codigoDescripcion;
+
+                                $documentos_sector_model = $empresa_objeto->empresasDocumentosTipoSector($documento_sector);
+
+                                // ESTO ES PARA LA FACTURA LA CREACION
+                                $facturaVerdad                           = new Factura();
+                                $facturaVerdad->usuario_creador_id       = Auth::user()->id;
+                                $facturaVerdad->cliente_id               = $cliente->id;
+                                $facturaVerdad->empresa_id               = $empresa_objeto->id;
+                                $facturaVerdad->sucursal_id              = $sucursal_objeto->id;
+                                $facturaVerdad->punto_venta_id           = $punto_venta_objeto->id;
+                                $facturaVerdad->cufd_id                  = $cufdVigente->id;
+                                $facturaVerdad->siat_documento_sector_id = $documentos_sector_model->id;
+                                $facturaVerdad->fecha                    = $datos['factura'][0]['cabecera']['fechaEmision'];
+                                $facturaVerdad->nit                      = $datos['factura'][0]['cabecera']['numeroDocumento'];
+                                $facturaVerdad->razon_social             = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
+                                $facturaVerdad->numero_factura           = $numeroFacturaEmpresa;
+                                $facturaVerdad->facturado                = "Si";
+                                $facturaVerdad->total                    = $datos['factura'][0]['cabecera']['montoTotal'];
+                                $facturaVerdad->monto_total_subjeto_iva  = $datos['factura'][0]['cabecera']['montoTotalSujetoIva'];
+                                $facturaVerdad->descuento_adicional      = $datos['factura'][0]['cabecera']['descuentoAdicional'];
+                                $facturaVerdad->cuf                      = $datos['factura'][0]['cabecera']['cuf'];
+                                $facturaVerdad->productos_xml            = file_get_contents("assets/docs/facturaxmlTasaCero_$nombreArchivo.xml");
+                                $facturaVerdad->codigo_descripcion       = $codigo_descripcion;
+                                $facturaVerdad->codigo_recepcion         = $for->resultado->RespuestaServicioFacturacion->codigoRecepcion;
+                                $facturaVerdad->codigo_transaccion       = $for->resultado->RespuestaServicioFacturacion->transaccion;
+                                $facturaVerdad->descripcion              = NULL;
+                                $facturaVerdad->uso_cafc                 = "No";
+                                $facturaVerdad->registro_compra          = 'No';
+                                $facturaVerdad->tipo_factura             = "online";
+
+                                $facturaVerdad->save();
+
+                                // AHORA AREMOS PARA LOS PAGOS
+                                Detalle::whereIn('id', $idDetalles)
+                                        ->update([
+                                            'estado'     => 'Finalizado',
+                                            'factura_id' => $facturaVerdad->id
+                                        ]);
+
+                                $data['estado'] = $codigo_descripcion;
+                                $data['numero'] = $facturaVerdad->id;
+
+                                // ***************** ENVIAMOS EL CORREO DE LA FACTURA *****************
+                                if($swFacturaEnvio){
+                                    $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                                    $this->enviaCorreo(
+                                        $cliente->correo,
+                                        $nombre,
+                                        $facturaVerdad->numero,
+                                        $facturaVerdad->fecha,
+                                        $facturaVerdad->id
+                                    );
+                                }
+
+                            }else{
+                                $data['estado'] = "RECHAZADA";
+                                $data['text'] = json_encode($for->resultado->RespuestaServicioFacturacion->mensajesList);
+                            }
+                        }else{
+                            $data['estado'] = "RECHAZADA";
+                            $data['text'] = $for->msg;
+                        }
+                    }else{
+
+                        $documentos_sector_model = $empresa_objeto->empresasDocumentosTipoSector($documento_sector);
+
+                        // ESTO ES PARA LA FACTURA LA CREACION
+                        $facturaVerdad                           = new Factura();
+                        $facturaVerdad->usuario_creador_id       = Auth::user()->id;
+                        $facturaVerdad->cliente_id               = $cliente->id;
+                        $facturaVerdad->empresa_id               = $empresa_objeto->id;
+                        $facturaVerdad->sucursal_id              = $sucursal_objeto->id;
+                        $facturaVerdad->punto_venta_id           = $punto_venta_objeto->id;
+                        $facturaVerdad->cufd_id                  = $datosCufdOffLine['scufd_id'];
+                        $facturaVerdad->siat_documento_sector_id = $documentos_sector_model->id;
+                        $facturaVerdad->fecha                    = $datos['factura'][0]['cabecera']['fechaEmision'];
+                        $facturaVerdad->nit                      = $datos['factura'][0]['cabecera']['numeroDocumento'];
+                        $facturaVerdad->razon_social             = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
+
+                        if($uso_cafc === "Si")
+                            $facturaVerdad->numero_cafc          = $numeroFacturaEmpresa;
+                        else
+                            $facturaVerdad->numero_factura       = $numeroFacturaEmpresa;
+
+                        $facturaVerdad->facturado               = "Si";
+                        $facturaVerdad->total                   = $datos['factura'][0]['cabecera']['montoTotal'];
+                        $facturaVerdad->monto_total_subjeto_iva = $datos['factura'][0]['cabecera']['montoTotalSujetoIva'];
+                        $facturaVerdad->descuento_adicional     = $datos['factura'][0]['cabecera']['descuentoAdicional'];
+                        $facturaVerdad->cuf                     = $datos['factura'][0]['cabecera']['cuf'];
+                        $facturaVerdad->productos_xml           = file_get_contents("assets/docs/facturaxmlTasaCero_$nombreArchivo.xml");
+                        $facturaVerdad->codigo_descripcion      = NULL;
+                        $facturaVerdad->codigo_recepcion        = NULL;
+                        $facturaVerdad->codigo_transaccion      = NULL;
+                        $facturaVerdad->descripcion             = NULL;
+                        $facturaVerdad->uso_cafc                = ($uso_cafc === "Si")? "Si" : "No";
+                        $facturaVerdad->tipo_factura            = "offline";
+                        $facturaVerdad->registro_compra         = 'No';
+
+
+                        $facturaVerdad->save();
+
+                        // AHORA AREMOS PARA LOS PAGOS
+                        Detalle::whereIn('id', $idDetalles)
+                        ->update([
+                            'estado'     => 'Finalizado',
+                            'factura_id' => $facturaVerdad->id
+                        ]);
+
+                        if($swFacturaEnvio){
+                            // ***************** ENVIAMOS EL CORREO DE LA FACTURA *****************
+                            $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                            $this->enviaCorreo(
+                                $cliente->correo,
+                                $nombre,
+                                $facturaVerdad->numero,
+                                $facturaVerdad->fecha,
+                                $facturaVerdad->id
+                            );
+                        }
+
+                        $data['estado']     = 'OFFLINE';
+                    }
+
+                    $archivo = "assets/docs/facturaxmlTasaCero_$nombreArchivo.xml";
+                    $archivoZip = "assets/docs/facturaxmlTasaCero_$nombreArchivo.xml.zip";
+                    // Verifica si el archivo existe antes de intentar eliminarlo
+                    if (file_exists($archivo))
+                        unlink($archivo);
+
+                    if(file_exists($archivoZip))
+                        unlink($archivoZip);
+                }else{
+                    $data['text']   = 'Alcanzo la cantidad maxima registros de facturas, solicite un plan superior.';
+                    $data['estado'] = 'error_sus';
+                }
+            }else{
+                $data['text']   = 'No existe suscripciones activas!, , solicite una suscripcion a un plan vigente.';
+                $data['estado'] = 'error_sus';
+            }
+
+            echo $formattedDateTime."<br>";
+            sleep(2);
+
+        }
+        */
+
+
+
+        // ======================================================================================================================================================
+        // ========================================= EMISION DE FACTURA TASA CERO ===============================================================
+        // ======================================================================================================================================================
+
+
+
+
+
+
+        // ======================================================================================================================================================
+        // ========================================= EMISION DE FACTURA SECTOR EDUCATIVO ===============================================================
+        // ======================================================================================================================================================
+
+        /*
+        $datosRequest = [
+            "cliente_id" => "3",
+            "carrito" => [
+                [
+                    "servicio_id"           => "3",
+                    "descripcion"           => "MENSUALIDAD",
+                    "precio"                => "123.00",
+                    "numero_serie"          => null,
+                    "numero_imei"           => null,
+                    "empresa_id"            => "1",
+                    "cantidad"              => "1",
+                    "total"                 => "123.00",
+                    "descuento"             => "0.00",
+                    "subTotal"              => "123",
+                    "descripcion_adicional" => null
+                ]
+            ],
+            "facturacion_datos_tipo_metodo_pago" => "1",
+            "facturacion_datos_tipo_moneda"      => "1",
+            "tipo_documento"                     => "5",
+            "nit_factura"                        => "178436029",
+            "razon_factura"                      => "GIPET",
+            "tipo_facturacion"                   => "online",
+            "uso_cafc"                           => "No",
+            "numero_factura_cafc"                => null,
+            "execpcion"                          => "false",
+            "complemento"                        => null,
+            "descuento_adicional"                => "0",
+            "monto_total"                        => "123.00"
+        ];
+
+        $usuario                          = Auth::user();
+        $empresa                          = $usuario->empresa;
+        $suscripcion                      = app(SuscripcionController::class);
+        $obtenerSuscripcionVigenteEmpresa = $suscripcion->obtenerSuscripcionVigenteEmpresa($empresa);
+
+        for ($k=1; $k <= 125 ; $k++) {
+
+            if($obtenerSuscripcionVigenteEmpresa){
+
+                $plan       = $obtenerSuscripcionVigenteEmpresa->plan;
+
+                if($suscripcion->verificarRegistroFacturaByPlan($plan, $empresa, $obtenerSuscripcionVigenteEmpresa)){
+
+                    $empresa_id     = $usuario->empresa_id;
+                    $punto_venta_id = $usuario->punto_venta_id;
+                    $sucursal_id    = $usuario->sucursal_id;
+
+                    $empresa_objeto     = Empresa::find($empresa_id);
+                    $punto_venta_objeto = PuntoVenta::find($punto_venta_id);
+                    $sucursal_objeto    = Sucursal::find($sucursal_id);
+
+                    $cuis_objeto       = Cuis::where('punto_venta_id', $punto_venta_objeto->id)
+                                            ->where('sucursal_id', $sucursal_objeto->id)
+                                            ->where('codigo_ambiente', $empresa_objeto->codigo_ambiente)
+                                            ->first();
+
+                    $documento_sector = 11;
+
+                    $carroVentas                        = $datosRequest['carrito'];
+                    $cliente_id                         = $datosRequest['cliente_id'];
+                    $facturacion_datos_tipo_metodo_pago = $datosRequest['facturacion_datos_tipo_metodo_pago'];
+                    $facturacion_datos_tipo_moneda      = $datosRequest['facturacion_datos_tipo_moneda'];
+                    $tipo_documento                     = $datosRequest['tipo_documento'];
+                    $nit_factura                        = $datosRequest['nit_factura'];
+                    $razon_factura                      = $datosRequest['razon_factura'];
+                    $tipo_facturacion                   = $datosRequest['tipo_facturacion'];
+                    $numero_factura_cafc                = $datosRequest['numero_factura_cafc'];
+                    $execpcion                          = $datosRequest['execpcion'];
+                    $complemento                        = $datosRequest['complemento'];
+                    $descuento_adicional                = $datosRequest['descuento_adicional'];
+                    $monto_total                        = $datosRequest['monto_total'];
+                    $uso_cafc                           = $datosRequest['uso_cafc'];
+                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+
+                    $contenidoabeceraFcv      = array();
+                    $cabeceraFcv              = array();
+                    $contenidoFacturaFcv      = array();
+                    $contenidoDetalleFcv      = array();
+                    $DetalleFcv               = array();
+                    $contenidoFacturaPadreFcv = array();
+                    $idDetalles               = array();
+
+                    $contenidoabeceraFcv['nitEmisor']                    = $empresa_objeto->nit;
+                    $contenidoabeceraFcv['razonSocialEmisor']            = $empresa_objeto->razon_social;
+                    $contenidoabeceraFcv['municipio']                    = $empresa_objeto->municipio;
+                    $contenidoabeceraFcv['telefono']                     = $empresa_objeto->celular;
+                    $contenidoabeceraFcv['numeroFactura']                = null;
+                    $contenidoabeceraFcv['cuf']                          = null;
+                    $contenidoabeceraFcv['cufd']                         = null;
+                    $contenidoabeceraFcv['codigoSucursal']               = $sucursal_objeto->codigo_sucursal;
+                    $contenidoabeceraFcv['direccion']                    = null;
+                    $contenidoabeceraFcv['codigoPuntoVenta']             = null;
+
+                    // PARA LA HORA
+                    $microtime                                                = microtime(true);
+                    $seconds                                                  = floor($microtime);
+                    $milliseconds                                             = round(($microtime - $seconds) * 1000);
+                    $formattedDateTime                                        = date("Y-m-d\TH:i:s.") . str_pad($milliseconds, 3, '0', STR_PAD_LEFT);
+
+                    $contenidoabeceraFcv['fechaEmision']                 = $formattedDateTime;
+                    $contenidoabeceraFcv['nombreRazonSocial']            = $razon_factura;
+                    $contenidoabeceraFcv['codigoTipoDocumentoIdentidad'] = $tipo_documento;
+                    $contenidoabeceraFcv['numeroDocumento']              = $nit_factura;
+                    $contenidoabeceraFcv['complemento']                  = ($complemento != null && $complemento != '')? $complemento : null;
+                    $contenidoabeceraFcv['codigoCliente']                = $cliente_id;
+                    $contenidoabeceraFcv['nombreEstudiante']             = 'LUIS FLORES';
+                    $contenidoabeceraFcv['periodoFacturado']             = 'JUNIO 2019';
+                    $contenidoabeceraFcv['codigoMetodoPago']             = $facturacion_datos_tipo_metodo_pago;
+                    $contenidoabeceraFcv['numeroTarjeta']                = null;
+                    $contenidoabeceraFcv['montoTotal']                   = $monto_total;
+                    $contenidoabeceraFcv['montoTotalSujetoIva']          = $monto_total;
+                    $contenidoabeceraFcv['codigoMoneda']                 = $facturacion_datos_tipo_moneda;
+                    $contenidoabeceraFcv['tipoCambio']                   = 1;
+                    $contenidoabeceraFcv['montoTotalMoneda']             = $monto_total;
+                    $contenidoabeceraFcv['montoGiftCard']                = null;
+                    $contenidoabeceraFcv['descuentoAdicional']           = $descuento_adicional;
+                    $contenidoabeceraFcv['codigoExcepcion']              = ($execpcion === "true")? 1 : 0;
+                    $contenidoabeceraFcv['cafc']                         = null;
+                    $contenidoabeceraFcv['leyenda']                      = $leyenda;
+                    $contenidoabeceraFcv['usuario']                      = $usuario->email;
+                    $contenidoabeceraFcv['codigoDocumentoSector']        = $documento_sector;
+
+                    $cabeceraFcv['cabecera'] = $contenidoabeceraFcv;
+
+                    array_push($contenidoFacturaFcv, $cabeceraFcv);
+
+                    // ----------------- AGREGAMOS EN L ATABLA DETALLES -----------------
+                    foreach($carroVentas as $key => $item){
+
+                        $detalle                        = new Detalle();
+                        $detalle->usuario_creador_id    = $usuario->id;
+                        $detalle->empresa_id            = $empresa_id;
+                        $detalle->sucursal_id           = $sucursal_id;
+                        $detalle->punto_venta_id        = $punto_venta_id;
+                        $detalle->cliente_id            = $cliente_id;
+                        $detalle->servicio_id           = $item['servicio_id'];
+                        $detalle->descripcion_adicional = $item['descripcion_adicional'];
+                        $detalle->numero_serie          = $item['numero_serie'];
+                        $detalle->numero_imei           = $item['numero_imei'];
+                        $detalle->precio                = $item['precio'];
+                        $detalle->cantidad              = $item['cantidad'];
+                        $detalle->total                 = $item['total'];
+                        $detalle->descuento             = $item['descuento'];
+                        $detalle->importe               = $item['subTotal'];
+                        $detalle->fecha                 = date('Y-m-d H:i:s');
+                        $detalle->estado                = 'Parapagar';
+                        $detalle->save();
+
+                        $servicio = Servicio::find($item['servicio_id']);
+
+                        array_push($idDetalles, $detalle->id);
+
+                        // ARMAMOS EL CONTENIDO DEL DETALLE
+                        $contenidoDetalleFcv['actividadEconomica'] = $servicio->siatDependeActividad->codigo_caeb;
+                        $contenidoDetalleFcv['codigoProductoSin']  = $servicio->siatProductoServicio->codigo_producto;
+                        $contenidoDetalleFcv['codigoProducto']     = $servicio->id;
+                        $contenidoDetalleFcv['descripcion']        = $servicio->descripcion."\n".$item['descripcion_adicional'];
+                        $contenidoDetalleFcv['cantidad']           = $item['cantidad'];
+                        $contenidoDetalleFcv['unidadMedida']       = $servicio->siatUnidadMedida->codigo_clasificador;
+                        $contenidoDetalleFcv['precioUnitario']     = $item['precio'];
+                        $contenidoDetalleFcv['montoDescuento']     = $item['descuento'];
+                        $contenidoDetalleFcv['subTotal']           = $item['subTotal'];
+
+                        $DetalleFcv['detalle'] = $contenidoDetalleFcv;
+
+                        array_push($contenidoFacturaFcv, $DetalleFcv);
+
+                    }
+
+                    $contenidoFacturaPadreFcv['factura'] = $contenidoFacturaFcv;
+                    $datos                               = $contenidoFacturaPadreFcv;
+                    $valoresCabecera                     = $datos['factura'][0]['cabecera'];
+                    $puntoVenta                          = $punto_venta_objeto->codigoPuntoVenta;
+                    $nitEmisorEmpresa                    = $empresa_objeto->nit;
+                    $sucursalEmpresa                     = $sucursal_objeto->codigo_sucursal;
+
+                    if($uso_cafc === "Si"){
+                        $numeroFacturaEmpresa = $numero_factura_cafc;
+                    }else{
+                        $numeroFacturaEmpresa = $this->numeroFactura($empresa_objeto->id, $sucursal_objeto->id, $punto_venta_objeto->id);
+                        $numeroFacturaEmpresa = ($numeroFacturaEmpresa == null? 1 : ($numeroFacturaEmpresa+1));
+                    }
+
+                    $nitEmisor          = str_pad($nitEmisorEmpresa,13,"0",STR_PAD_LEFT);
+                    $fechaEmision       = str_replace(".","",str_replace(":","",str_replace("-","",str_replace("T", "",$valoresCabecera['fechaEmision']))));
+                    $sucursal           = str_pad($sucursalEmpresa,4,"0",STR_PAD_LEFT);
+                    $modalidad          = $empresa_objeto->codigo_modalidad;
+                    $numeroFactura      = str_pad($numeroFacturaEmpresa,10,"0",STR_PAD_LEFT);
+
+                    if($tipo_facturacion === "online"){
+                        $tipoEmision        = 1;
+                    }
+                    else{
+                        if($uso_cafc === "Si"){
+                            $datos['factura'][0]['cabecera']['cafc']          = $empresa_objeto->cafc;
+                            $datos['factura'][0]['cabecera']['numeroFactura'] = $numero_factura_cafc;
+                        }
+                        $tipoEmision = 2;
+                    }
+
+                    $tipoFactura        = ($documento_sector == 8)? 2 : 1; // Factura sin Derecho a Crédito Fiscal
+                    $tipoFacturaSector  = str_pad($valoresCabecera['codigoDocumentoSector'],2,"0",STR_PAD_LEFT);;
+                    $puntoVenta         = str_pad($puntoVenta,4,"0",STR_PAD_LEFT);
+
+                    $cadena = $nitEmisor.$fechaEmision.$sucursal.$modalidad.$tipoEmision.$tipoFactura.$tipoFacturaSector.$numeroFactura.$puntoVenta;
+
+                    // VERIFICAMOS SI EXISTE LOS DATOS SUFICINTES APRA EL MANDAO DEL CORREO
+                    $cliente        = Cliente::find($cliente_id);
+                    $swFacturaEnvio = true;
+                    if(!($cliente && $cliente->correo != null && $cliente->correo != '')){
+                        // $data['estado'] = "error_email";
+                        // $data['text']    = "La persona no tiene correo";
+                        // return $data;
+                        $swFacturaEnvio = false;
+                    }
+
+                    $cliente->nit              = $datos['factura'][0]['cabecera']['numeroDocumento'];
+                    $cliente->razon_social     = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
+                    $cliente->save();
+
+                    // CODIGO DE JOEL ESETE LO HIZMOMOS NOSOTROS
+                    $cadenaConM11 = $cadena.$this->calculaDigitoMod11($cadena, 1, 9, false);
+                    if($tipo_facturacion === "online"){
+
+                        $siat = app(SiatController::class);
+
+                        $cufdVigente = json_decode(
+                            $siat->verificarConeccion(
+                                $empresa_objeto->id,
+                                $sucursal_objeto->id,
+                                $cuis_objeto->id,
+                                $punto_venta_objeto->id,
+                                $empresa_objeto->codigo_ambiente
+                            ));
+
+
+                        $scufd                  = $cufdVigente->codigo;
+                        $scodigoControl         = $cufdVigente->codigo_control;
+                        $sdireccion             = $cufdVigente->direccion;
+                        $sfechaVigenciaCufd     = $cufdVigente->fecha_vigencia;
+
+                    }else{
+                        $eventoSignificadoControlller = app(EventoSignificativoController::class);
+
+                        $empresa_id      = $empresa_objeto->id;
+                        $sucursal_id     = $sucursal_objeto->id;
+                        $punto_venta_id  = $punto_venta_objeto->id;
+                        $codigo_ambiente = $empresa_objeto->codigo_ambiente;
+
+                        $datosCufdOffLine             = $eventoSignificadoControlller->sacarCufdVigenteFueraLinea(
+                            $empresa_id,
+                            $sucursal_id,
+                            $punto_venta_id,
+                            $codigo_ambiente
+                        );
+
+                        if($datosCufdOffLine['estado'] === "success"){
+                            $scufd                  = $datosCufdOffLine['scufd'];
+                            $scodigoControl         = $datosCufdOffLine['scodigoControl'];
+                            $sdireccion             = $datosCufdOffLine['sdireccion'];
+                            $sfechaVigenciaCufd     = $datosCufdOffLine['sfechaVigenciaCufd'];
+                        }else{
+
+                            $data['estado'] = "error";
+                            $data['text']    = "ERROR AL RECUPERAR EL CUFD ANTIGUO";
+
+                            return $data;
+                        }
+                    }
+
+                    $cufPro                                                 = $this->generarBase16($cadenaConM11).$scodigoControl;
+
+                    $datos['factura'][0]['cabecera']['numeroFactura']     = $numeroFacturaEmpresa;
+                    $datos['factura'][0]['cabecera']['cuf']                 = $cufPro;
+                    $datos['factura'][0]['cabecera']['cufd']                = $scufd;
+                    $datos['factura'][0]['cabecera']['direccion']           = $sdireccion;
+                    $datos['factura'][0]['cabecera']['codigoPuntoVenta']    = $puntoVenta;
+
+                    $temporal = $datos['factura'];
+
+                    if($empresa_objeto->codigo_modalidad == "1"){
+
+                    }else{
+                        $dar = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                                <facturaComputarizadaSectorEducativo xsi:noNamespaceSchemaLocation="facturaComputarizadaSectorEducativo.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                                </facturaComputarizadaSectorEducativo>';
+                    }
+
+                    $xml_temporal = new SimpleXMLElement($dar);
+                    $this->formato_xml($temporal, $xml_temporal);
+
+                    $nombreArchivo = $cufPro."_".$numeroFacturaEmpresa."_".$nitEmisorEmpresa;
+
+                    $xml_temporal->asXML("assets/docs/facturaxml_$nombreArchivo.xml");
+
+                    //  =========================   DE AQUI COMENZAMOS EL FIRMADO CHEEEEE ==============================\
+                    if($empresa_objeto->codigo_modalidad == "1"){
+
+                        if(!is_null($empresa_objeto->archivop12)){
+                            // dd($empresa_objeto->archivop12, $empresa_objeto->contrasenia);
+                            $firmador = new FirmadorBoliviaSingle($empresa_objeto->archivop12, $empresa_objeto->contrasenia);
+                            $xmlFirmado = $firmador->firmarRuta("assets/docs/facturaxml_$nombreArchivo.xml");
+                            file_put_contents("assets/docs/facturaxml_$nombreArchivo.xml", $xmlFirmado);
+                        }else{
+                            $data['text']   = 'No existe el archivo .p12 de firmado';
+                            $data['estado'] = 'error_firma';
+
+                            return $data;
+                        }
+                    }
+                    // ========================== FINAL DE AQUI COMENZAMOS EL FIRMADO CHEEEEE  ==========================
+
+                    // COMPRIMIMOS EL ARCHIVO A ZIP
+                    $gzdato = gzencode(file_get_contents("assets/docs/facturaxml_$nombreArchivo.xml",9));
+                    $fiape = fopen("assets/docs/facturaxml_$nombreArchivo.xml.zip","w");
+                    fwrite($fiape,$gzdato);
+                    fclose($fiape);
+
+                    //  hashArchivo EL ARCHIVO
+                    $archivoZip = $gzdato;
+                    $hashArchivo = hash("sha256", file_get_contents("assets/docs/facturaxml_$nombreArchivo.xml"));
+
+                    if($tipo_facturacion === "online"){
+
+                        $urlApiServicioSiat = new UrlApiServicioSiat();
+                        $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionSectorEducativoElectronica($empresa_objeto->codigo_ambiente, $empresa_objeto->codigo_modalidad);
+
+                        $header                 = $empresa_objeto->api_token;
+                        $url3                   = $UrlSincronizacion->url_servicio;
+                        $codigoAmbiente         = $empresa_objeto->codigo_ambiente;
+                        $codigoDocumentoSector  = $documento_sector;
+                        $codigoModalidad        = $empresa_objeto->codigo_modalidad;
+                        $codigoPuntoVenta       = $punto_venta_objeto->codigoPuntoVenta;
+                        $codigoSistema          = $empresa_objeto->codigo_sistema;
+                        $codigoSucursal         = $sucursal_objeto->codigo_sucursal;
+                        $scufd                  = $cufdVigente->codigo;
+                        $scuis                  = $cuis_objeto->codigo;
+                        $nit                    = $empresa_objeto->nit;
+                        $tipoFacturaDocumento   = 1;
+
+                        $siat = app(SiatController::class);
+                        $for  = json_decode($siat->recepcionFactura(
+                            $header,
+                            $url3,
+                            $codigoAmbiente,
+                            $codigoDocumentoSector,
+                            $codigoModalidad,
+                            $codigoPuntoVenta,
+                            $codigoSistema,
+                            $codigoSucursal,
+                            $scufd,
+                            $scuis,
+                            $nit,
+                            $tipoFacturaDocumento,
+
+                            $archivoZip, $valoresCabecera['fechaEmision'],$hashArchivo)
+                        );
+
+                        // NUEVO CODIGO PARA EVITAR ERROES DE GENERACION DE FACTURAS Y EVITAR QUE SE CREE MAS FACTURAS ASI NOMAS
+                        if($for->estado === "success"){
+
+                            // $codigo_descripcion = $for->resultado->RespuestaServicioFacturacion->codigoDescripcion;
+                            if($for->resultado->RespuestaServicioFacturacion->transaccion){
+                                $codigo_descripcion = $for->resultado->RespuestaServicioFacturacion->codigoDescripcion;
+
+                                $documentos_sector_model = $empresa_objeto->empresasDocumentosTipoSector($documento_sector);
+
+                                // ESTO ES PARA LA FACTURA LA CREACION
+                                $facturaVerdad                           = new Factura();
+                                $facturaVerdad->usuario_creador_id       = Auth::user()->id;
+                                $facturaVerdad->cliente_id               = $cliente->id;
+                                $facturaVerdad->empresa_id               = $empresa_objeto->id;
+                                $facturaVerdad->sucursal_id              = $sucursal_objeto->id;
+                                $facturaVerdad->punto_venta_id           = $punto_venta_objeto->id;
+                                $facturaVerdad->cufd_id                  = $cufdVigente->id;
+                                $facturaVerdad->siat_documento_sector_id = $documentos_sector_model->id;
+                                $facturaVerdad->fecha                    = $datos['factura'][0]['cabecera']['fechaEmision'];
+                                $facturaVerdad->nit                      = $datos['factura'][0]['cabecera']['numeroDocumento'];
+                                $facturaVerdad->razon_social             = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
+                                $facturaVerdad->numero_factura           = $numeroFacturaEmpresa;
+                                $facturaVerdad->facturado                = "Si";
+                                $facturaVerdad->total                    = $datos['factura'][0]['cabecera']['montoTotal'];
+                                $facturaVerdad->monto_total_subjeto_iva  = $datos['factura'][0]['cabecera']['montoTotalSujetoIva'];
+                                $facturaVerdad->descuento_adicional      = $datos['factura'][0]['cabecera']['descuentoAdicional'];
+                                $facturaVerdad->cuf                      = $datos['factura'][0]['cabecera']['cuf'];
+                                $facturaVerdad->productos_xml            = file_get_contents("assets/docs/facturaxml_$nombreArchivo.xml");
+                                $facturaVerdad->codigo_descripcion       = $codigo_descripcion;
+                                $facturaVerdad->codigo_recepcion         = $for->resultado->RespuestaServicioFacturacion->codigoRecepcion;
+                                $facturaVerdad->codigo_transaccion       = $for->resultado->RespuestaServicioFacturacion->transaccion;
+                                $facturaVerdad->descripcion              = NULL;
+                                $facturaVerdad->uso_cafc                 = "No";
+                                $facturaVerdad->registro_compra          = 'No';
+                                $facturaVerdad->tipo_factura             = "online";
+                                $facturaVerdad->save();
+
+                                // AHORA AREMOS PARA LOS PAGOS
+                                Detalle::whereIn('id', $idDetalles)
+                                        ->update([
+                                            'estado'     => 'Finalizado',
+                                            'factura_id' => $facturaVerdad->id
+                                        ]);
+
+                                $data['estado'] = $codigo_descripcion;
+                                $data['numero'] = $facturaVerdad->id;
+
+                                // ***************** ENVIAMOS EL CORREO DE LA FACTURA *****************
+                                if($swFacturaEnvio){
+                                    $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                                    $this->enviaCorreo(
+                                        $cliente->correo,
+                                        $nombre,
+                                        $facturaVerdad->numero,
+                                        $facturaVerdad->fecha,
+                                        $facturaVerdad->id
+                                    );
+                                }
+
+                            }else{
+                                $data['estado'] = "RECHAZADA";
+                                $data['text'] = json_encode($for->resultado->RespuestaServicioFacturacion->mensajesList);
+                            }
+                        }else{
+                            $data['estado'] = "RECHAZADA";
+                            $data['text'] = $for->msg;
+                        }
+                    }else{
+
+                        // ESTO ES PARA LA FACTURA LA CREACION
+                        $documentos_sector_model = $empresa_objeto->empresasDocumentosTipoSector($documento_sector);
+
+                        $facturaVerdad                          = new Factura();
+                        $facturaVerdad->usuario_creador_id      = Auth::user()->id;
+                        $facturaVerdad->cliente_id              = $cliente->id;
+                        $facturaVerdad->empresa_id              = $empresa_objeto->id;
+                        $facturaVerdad->sucursal_id             = $sucursal_objeto->id;
+                        $facturaVerdad->punto_venta_id          = $punto_venta_objeto->id;
+                        $facturaVerdad->cufd_id                 = $datosCufdOffLine['scufd_id'];
+                        $facturaVerdad->fecha                   = $datos['factura'][0]['cabecera']['fechaEmision'];
+                        $facturaVerdad->nit                     = $datos['factura'][0]['cabecera']['numeroDocumento'];
+                        $facturaVerdad->razon_social            = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
+
+                        if($uso_cafc === "Si")
+                            $facturaVerdad->numero_cafc          = $numeroFacturaEmpresa;
+                        else
+                            $facturaVerdad->numero_factura       = $numeroFacturaEmpresa;
+
+                        $facturaVerdad->facturado                = "Si";
+                        $facturaVerdad->total                    = $datos['factura'][0]['cabecera']['montoTotal'];
+                        $facturaVerdad->monto_total_subjeto_iva  = $datos['factura'][0]['cabecera']['montoTotalSujetoIva'];
+                        $facturaVerdad->descuento_adicional      = $datos['factura'][0]['cabecera']['descuentoAdicional'];
+                        $facturaVerdad->cuf                      = $datos['factura'][0]['cabecera']['cuf'];
+                        $facturaVerdad->productos_xml            = file_get_contents("assets/docs/facturaxml_$nombreArchivo.xml");
+                        $facturaVerdad->codigo_descripcion       = NULL;
+                        $facturaVerdad->codigo_recepcion         = NULL;
+                        $facturaVerdad->codigo_transaccion       = NULL;
+                        $facturaVerdad->descripcion              = NULL;
+                        $facturaVerdad->uso_cafc                 = ($uso_cafc === "Si")? "Si" : "No";
+                        $facturaVerdad->tipo_factura             = "offline";
+                        $facturaVerdad->registro_compra          = 'No';
+                        $facturaVerdad->siat_documento_sector_id = $documentos_sector_model->id;
+
+                        $facturaVerdad->save();
+
+                        // AHORA AREMOS PARA LOS PAGOS
+                        Detalle::whereIn('id', $idDetalles)
+                        ->update([
+                            'estado'     => 'Finalizado',
+                            'factura_id' => $facturaVerdad->id
+                        ]);
+
+                        if($swFacturaEnvio){
+                            // ***************** ENVIAMOS EL CORREO DE LA FACTURA *****************
+                            $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                            $this->enviaCorreo(
+                                $cliente->correo,
+                                $nombre,
+                                $facturaVerdad->numero,
+                                $facturaVerdad->fecha,
+                                $facturaVerdad->id
+                            );
+                        }
+
+                        $data['estado']     = 'OFFLINE';
+                    }
+
+                    $archivo = "assets/docs/facturaxml_$nombreArchivo.xml";
+                    $archivoZip = "assets/docs/facturaxml_$nombreArchivo.xml.zip";
+                    // Verifica si el archivo existe antes de intentar eliminarlo
+                    if (file_exists($archivo))
+                        unlink($archivo);
+
+                    if(file_exists($archivoZip))
+                        unlink($archivoZip);
+
+                }else{
+                    $data['text']   = 'Alcanzo la cantidad maxima registros de facturas, solicite un plan superior.';
+                    $data['estado'] = 'error_sus';
+                }
+            }else{
+                $data['text']   = 'No existe suscripciones activas!, , solicite una suscripcion a un plan vigente.';
+                $data['estado'] = 'error_sus';
+            }
+
+            echo $formattedDateTime."<br>";
+            sleep(2);
+
+        }
+        */
+
+        // ======================================================================================================================================================
+        // ========================================= EMISION DE FACTURA SECTOR EDUCATIVO ===============================================================
+        // ======================================================================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+        // ======================================================================================================================================================
+        // ========================================= ANULACION MASIVOOO ===============================================================
+        // ======================================================================================================================================================
+        /*
+        $facturas = Factura::where('usuario_creador_id', 3)
+                            ->whereNull('estado')
+                            // ->limit(1)
+                            ->get();
+
+        foreach ($facturas as $key => $fac) {
+
+            // $factura_id       = $request->input('factura_id');
+            // $motivo_anulacion = $request->input('codigoMotivoAnulacion');
+            $factura_id       = $fac->id;
+            $motivo_anulacion = "1";
+
+            $factura          = Factura::find($factura_id);
+            $empresa_id       = $factura->empresa_id;
+            $empresa          = Empresa::find($empresa_id);
+            $sucursal         = Sucursal::find($factura->sucursal_id);
+            $punto_venta      = PuntoVenta::find($factura->punto_venta_id);
+            $cuis             = $empresa->cuisVigente($sucursal->id, $punto_venta->id, $empresa->codigo_ambiente);
+            $documento_sector = $factura->siat_tipo_documento_sector;
+
+            $siat       = app(SiatController::class);
+
+            $cufdVigente = json_decode(
+                $siat->verificarConeccion(
+                    $empresa->id,
+                    $sucursal->id,
+                    $cuis->id,
+                    $punto_venta->id,
+                    $empresa->codigo_ambiente
+                ));
+
+            $urlApiServicioSiat = new UrlApiServicioSiat();
+            if($documento_sector->codigo_clasificador == "8")
+                $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionTasaCeroElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
+            else if($documento_sector->codigo_clasificador == "1")
+                $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionCompraVentaElctronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
+            else
+                $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionSectorEducativoElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
+
+
+            $header                = $empresa->api_token;
+            $url3                  = $UrlSincronizacion->url_servicio;
+            $codigoAmbiente        = $empresa->codigo_ambiente;
+            $codigoDocumentoSector = $documento_sector->codigo_clasificador;
+            $codigoModalidad       = $empresa->codigo_modalidad;
+            $codigoPuntoVenta      = $punto_venta->codigoPuntoVenta;
+            $codigoSistema         = $empresa->codigo_sistema;
+            $codigoSucursal        = $sucursal->codigo_sucursal;
+            $scufd                 = $cufdVigente->codigo;
+            $scuis                 = $cuis->codigo;
+            $nit                   = $empresa->nit;
+            $tipoFacturaDocumento  = ($documento_sector->codigo_clasificador == "8")? 2 : 1;
+
+            $respuesta = json_decode($siat->anulacionFactura(
+                $header,
+                $url3,
+                $codigoAmbiente,
+                $codigoDocumentoSector,
+                $codigoModalidad,
+                $codigoPuntoVenta,
+                $codigoSistema,
+                $codigoSucursal,
+                $scufd,
+                $scuis,
+                $nit,
+                $tipoFacturaDocumento,
+
+                $motivo_anulacion,
+                $factura->cuf
+            ));
+
+            if($respuesta->estado == "success"){
+                if($respuesta->resultado->RespuestaServicioFacturacion->transaccion){
+                    $factura->estado = 'Anulado';
+
+                    // PARA ELIMINAR LOS DETALLES
+                    Detalle::where('factura_id', $factura->id)->delete();
+
+                    $cliente = Cliente::find($factura->cliente_id);
+
+                    $correo = $cliente->correo;
+                    $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                    $numero = $factura->numero;
+                    $fecha  = $factura->fecha;
+
+                    $this->enviaCorreoAnulacion($correo, $nombre, $numero, $fecha );
+
+                    $data['estado'] = "success";
+                }else{
+                    $factura->descripcion = $respuesta->resultado->RespuestaServicioFacturacion->mensajesList->descripcion;
+                    $data['estado']       = "error";
+                    $data['descripcion']  = $respuesta->resultado->RespuestaServicioFacturacion;
+                    $data['msg']          = $respuesta->resultado;
+                }
+                $factura->save();
+            }else{
+                $data['text']                             = 'No existe';
+                $data['estado']                           = 'error';
+                $data['descripcion']['codigoDescripcion'] = 'Error al anular';
+                $data['descripcion']['mensajesList']      = $respuesta;
+                $data['msg']                              = $respuesta;
+            }
+
+            echo json_encode($data)."<br><br>";
+            sleep(2);
+        }
+        */
+        // ======================================================================================================================================================
+        // ========================================= ANULACION MASIVOOO ===============================================================
+        // ======================================================================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+        // ======================================================================================================================================================
+        // ========================================= REVERTIR ANULACION  MASIVOOO ===============================================================
+        // ======================================================================================================================================================
+
+
+        $facturas = Factura::where('usuario_creador_id', 3)
+                            ->where('estado', 'Anulado')
+                            // ->limit(1)
+                            ->get();
+
+        foreach ($facturas as $key => $fac) {
+            // $factura_id = $request->input('factura');
+            $factura_id = $fac->id;
+            $factura    = Factura::find($factura_id);
+
+            $empresa_id     = $factura->empresa_id;
+            $sucursal_id    = $factura->sucursal_id;
+            $punto_venta_id = $factura->punto_venta_id;
+
+            $empresa          = Empresa::find($empresa_id);
+            $sucursal         = Sucursal::find($sucursal_id);
+            $punto_venta      = PuntoVenta::find($punto_venta_id);
+            $cuis             = $empresa->cuisVigente($sucursal->id, $punto_venta->id, $empresa->codigo_ambiente);
+            $documento_sector = $factura->siat_tipo_documento_sector;
+
+            $siat       = app(SiatController::class);
+
+            $cufdVigente = json_decode(
+                $siat->verificarConeccion(
+                    $empresa->id,
+                    $sucursal->id,
+                    $cuis->id,
+                    $punto_venta->id,
+                    $empresa->codigo_ambiente
+                ));
+
+            $urlApiServicioSiat = new UrlApiServicioSiat();
+            if($documento_sector->codigo_clasificador == "8")
+                $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionTasaCeroElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
+            else if($documento_sector->codigo_clasificador == "1")
+                $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionCompraVentaElctronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
+            else
+                $UrlSincronizacion  = $urlApiServicioSiat->getUrlFacturacionSectorEducativoElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
+
+            $header                = $empresa->api_token;
+            $url3                  = $UrlSincronizacion->url_servicio;
+            $codigoAmbiente        = $empresa->codigo_ambiente;
+            $codigoDocumentoSector = $documento_sector->codigo_clasificador;
+            $codigoModalidad       = $empresa->codigo_modalidad;
+            $codigoPuntoVenta      = $punto_venta->codigoPuntoVenta;
+            $codigoSistema         = $empresa->codigo_sistema;
+            $codigoSucursal        = $sucursal->codigo_sucursal;
+            $scufd                 = $cufdVigente->codigo;
+            $scuis                 = $cuis->codigo;
+            $nit                   = $empresa->nit;
+            $cuf1                  = $factura->cuf;
+            $tipoFacturaDocumento  = ($documento_sector->codigo_clasificador == "8")? 2 : 1;
+
+            $respuesta = json_decode($siat->reversionAnulacionFactura(
+                $header,
+                $url3,
+                $codigoAmbiente,
+                $codigoDocumentoSector ,
+                $codigoModalidad,
+                $codigoPuntoVenta,
+                $codigoSistema,
+                $codigoSucursal,
+                $scufd,
+                $scuis,
+                $nit,
+                $cuf1,
+                $tipoFacturaDocumento
+            ));
+
+            if($respuesta->estado == "success"){
+                if($respuesta->resultado->RespuestaServicioFacturacion->transaccion){
+                    $factura->estado = null;
+                    Detalle::withTrashed()
+                            ->where('factura_id', $factura->id)
+                            ->update(['deleted_at' => null]);
+                    $factura->save();
+                    $data['estado'] = 'success';
+                    $data['msg'] = $respuesta->resultado->RespuestaServicioFacturacion->codigoDescripcion;
+                }else{
+                    $data['msg']   = $respuesta;
+                    $data['estado'] = 'error';
+                }
+            }else{
+                $data['msg']   = $respuesta;
+                $data['estado'] = 'error';
+            }
+
+            echo json_encode($data)."<br><br>";
+            sleep(2);
+        }
+        // ======================================================================================================================================================
+        // ========================================= REVERTIR ANULACION  MASIVOOO ===============================================================
+        // ======================================================================================================================================================
+
+
+
     }
     // ********************  CREACION MASIVA FACTURAACION   *****************************
 

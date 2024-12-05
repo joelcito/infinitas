@@ -173,7 +173,8 @@ Route::middleware(['auth', 'one.session'])->group(function () {
 
         // PARA CREACION DE FACTURAS MASA
         Route::get('/emiteFacturaMasa', [FacturaController::class, 'emiteFacturaMasa']);
-        Route::get('/armaJson', [FacturaController::class, 'armaJson']);
+        Route::get('/emiteFacturaMasaEspecifico', [FacturaController::class, 'emiteFacturaMasaEspecifico']);
+
         // PARA CREACION DE FACTURAS MASA
 
         Route::get('/formularioFacturacionCv', [FacturaController::class, 'formularioFacturacionCv']);
