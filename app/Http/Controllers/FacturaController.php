@@ -490,7 +490,7 @@ class FacturaController extends Controller
                             ->where('facturas.sucursal_id', $sucursal_id)
                             ->where('facturas.punto_venta_id', $punto_venta_id)
 
-                            // ->whereNull('facturas.codigo_descripcion')
+                            ->whereNull('facturas.codigo_descripcion')
                             ;
 
             if(!is_null($request->input('buscar_nro_factura'))){
@@ -1512,6 +1512,8 @@ class FacturaController extends Controller
 
         if($request->ajax()){
 
+            // dd($request->all());
+
             $usuario        = Auth::user();
             $empresa        = $usuario->empresa;
 
@@ -2000,6 +2002,8 @@ class FacturaController extends Controller
     public function emitirFacturaSe(Request $request) {
 
         if($request->ajax()){
+
+            // dd($request->all());
 
             $usuario        = Auth::user();
             $empresa        = $usuario->empresa;
@@ -3754,6 +3758,54 @@ class FacturaController extends Controller
         // ======================================================================================================================================================
         // ========================================= EMISION DE FACTURA COMPRA Y VENTA===============================================================
         // ======================================================================================================================================================
+
+
+        // **************** EN LINEA ****************
+        // $datosRequest = [
+        //     "cliente_id" => "1",
+        //     "carrito" => [
+        //         [
+        //             "servicio_id"           => "1",
+        //             "descripcion"           => "DESARROLLO DE SOFTWARE",
+        //             "precio"                => "500.00",
+        //             "numero_serie"          => null,
+        //             "numero_imei"           => null,
+        //             "empresa_id"            => "1",
+        //             "cantidad"              => "1",
+        //             "total"                 => "500.00",
+        //             "descuento"             => "0.00",
+        //             "subTotal"              => "500",
+        //             "descripcion_adicional" => null
+        //         ],
+        //         [
+        //             "servicio_id"           => "4",
+        //             "descripcion"           => "MANTEQUILLA",
+        //             "precio"                => "15.00",
+        //             "numero_serie"          => null,
+        //             "numero_imei"           => null,
+        //             "empresa_id"            => "1",
+        //             "cantidad"              => "1",
+        //             "total"                 => "15.00",
+        //             "descuento"             => "0.00",
+        //             "subTotal"              => "15",
+        //             "descripcion_adicional" => null
+        //         ]
+        //     ],
+        //     "facturacion_datos_tipo_metodo_pago" => "1",
+        //     "facturacion_datos_tipo_moneda"      => "1",
+        //     "tipo_documento"                     => "5",
+        //     "nit_factura"                        => "5427648016",
+        //     "razon_factura"                      => "MICAELA ESCOBAR",
+        //     "tipo_facturacion"                   => "online",
+        //     "uso_cafc"                           => "No",
+        //     "numero_factura_cafc"                => null,
+        //     "execpcion"                          => "false",
+        //     "complemento"                        => null,
+        //     "descuento_adicional"                => "0",
+        //     "monto_total"                        => "515.00"
+        // ];
+
+        // **************** EN FUERA DE LINEA ****************
         /*
         $datosRequest = [
             "cliente_id" => "1",
@@ -3769,7 +3821,7 @@ class FacturaController extends Controller
                     "total"                 => "500.00",
                     "descuento"             => "0.00",
                     "subTotal"              => "500",
-                    "descripcion_adicional" => null
+                    "descripcion_adicional" => null,
                 ],
                 [
                     "servicio_id"           => "4",
@@ -3782,22 +3834,24 @@ class FacturaController extends Controller
                     "total"                 => "15.00",
                     "descuento"             => "0.00",
                     "subTotal"              => "15",
-                    "descripcion_adicional" => null
-                ]
+                    "descripcion_adicional" => null,
+                ],
             ],
             "facturacion_datos_tipo_metodo_pago" => "1",
             "facturacion_datos_tipo_moneda"      => "1",
             "tipo_documento"                     => "5",
             "nit_factura"                        => "5427648016",
             "razon_factura"                      => "MICAELA ESCOBAR",
-            "tipo_facturacion"                   => "online",
+            "tipo_facturacion"                   => "offline",
             "uso_cafc"                           => "No",
+            // "uso_cafc"                           => "Si",
             "numero_factura_cafc"                => null,
             "execpcion"                          => "false",
             "complemento"                        => null,
             "descuento_adicional"                => "0",
-            "monto_total"                        => "515.00"
+            "monto_total"                        => "515.00",
         ];
+
 
         $usuario        = Auth::user();
         $empresa        = $usuario->empresa;
@@ -3805,7 +3859,10 @@ class FacturaController extends Controller
         $suscripcion = app(SuscripcionController::class);
 
         $obtenerSuscripcionVigenteEmpresa = $suscripcion->obtenerSuscripcionVigenteEmpresa($empresa);
-        for ($k=1; $k <= 122 ; $k++) {
+        // for ($k=1; $k <= 5000 ; $k++) {
+        // for ($k=1; $k <= 70 ; $k++) {
+        for ($k=1; $k <= 10 ; $k++) {
+        // for ($k=1; $k <= 4871 ; $k++) {
 
             if($obtenerSuscripcionVigenteEmpresa){
 
@@ -4301,6 +4358,7 @@ class FacturaController extends Controller
 
         }
         */
+
         // ======================================================================================================================================================
         // ========================================= EMISION DE FACTURA COMPRA Y VENTA===============================================================
         // ======================================================================================================================================================
@@ -4311,6 +4369,39 @@ class FacturaController extends Controller
         // ======================================================================================================================================================
         // ========================================= EMISION DE FACTURA TASA CERO ===============================================================
         // ======================================================================================================================================================
+
+        // **************** EN LINEA ****************
+        // $datosRequest = [
+        //     "cliente_id" => "2",
+        //     "carrito" => [
+        //         [
+        //             "servicio_id"           => "2",
+        //             "descripcion"           => "PRODUCTO TASA CERO",
+        //             "precio"                => "50.00",
+        //             "empresa_id"            => "1",
+        //             "cantidad"              => "1",
+        //             "total"                 => "50.00",
+        //             "descuento"             => "0.00",
+        //             "subTotal"              => "50",
+        //             "descripcion_adicional" => null
+        //         ]
+        //     ],
+        //     "facturacion_datos_tipo_metodo_pago" => "1",
+        //     "facturacion_datos_tipo_moneda"      => "1",
+        //     "tipo_documento"                     => "5",
+        //     "nit_factura"                        => "451059024",
+        //     "razon_factura"                      => "JUAN",
+        //     "tipo_facturacion"                   => "online",
+        //     "uso_cafc"                           => "No",
+        //     "numero_factura_cafc"                => null,
+        //     "execpcion"                          => "false",
+        //     "complemento"                        => null,
+        //     "descuento_adicional"                => "0",
+        //     "monto_total"                        => "50.00"
+        // ];
+
+        // **************** EN FUERA DE LINEA ****************
+
 
         /*
         $datosRequest = [
@@ -4325,21 +4416,22 @@ class FacturaController extends Controller
                     "total"                 => "50.00",
                     "descuento"             => "0.00",
                     "subTotal"              => "50",
-                    "descripcion_adicional" => null
-                ]
+                    "descripcion_adicional" => null,
+                ],
             ],
             "facturacion_datos_tipo_metodo_pago" => "1",
             "facturacion_datos_tipo_moneda"      => "1",
             "tipo_documento"                     => "5",
             "nit_factura"                        => "451059024",
             "razon_factura"                      => "JUAN",
-            "tipo_facturacion"                   => "online",
-            "uso_cafc"                           => "No",
-            "numero_factura_cafc"                => null,
+            "tipo_facturacion"                   => "offline",
+            // "uso_cafc"                           => "No",
+            "uso_cafc"                           => "Si",
+            "numero_factura_cafc"                => 100,
             "execpcion"                          => "false",
             "complemento"                        => null,
             "descuento_adicional"                => "0",
-            "monto_total"                        => "50.00"
+            "monto_total"                        => "50.00",
         ];
 
 
@@ -4350,7 +4442,9 @@ class FacturaController extends Controller
 
         $obtenerSuscripcionVigenteEmpresa = $suscripcion->obtenerSuscripcionVigenteEmpresa($empresa);
 
-        for ($k=1; $k <= 125 ; $k++) {
+        // for ($k=1; $k <= 500 ; $k++) {
+        for ($k=1; $k <= 5000 ; $k++) {
+        // for ($k=1; $k <= 1 ; $k++) {
 
             if($obtenerSuscripcionVigenteEmpresa){
 
@@ -4826,7 +4920,9 @@ class FacturaController extends Controller
             sleep(2);
 
         }
+
         */
+
 
 
 
@@ -4843,7 +4939,40 @@ class FacturaController extends Controller
         // ========================================= EMISION DE FACTURA SECTOR EDUCATIVO ===============================================================
         // ======================================================================================================================================================
 
-        /*
+        // **************** EN LINEA ****************
+        // $datosRequest = [
+        //     "cliente_id" => "3",
+        //     "carrito" => [
+        //         [
+        //             "servicio_id"           => "3",
+        //             "descripcion"           => "MENSUALIDAD",
+        //             "precio"                => "123.00",
+        //             "numero_serie"          => null,
+        //             "numero_imei"           => null,
+        //             "empresa_id"            => "1",
+        //             "cantidad"              => "1",
+        //             "total"                 => "123.00",
+        //             "descuento"             => "0.00",
+        //             "subTotal"              => "123",
+        //             "descripcion_adicional" => null
+        //         ]
+        //     ],
+        //     "facturacion_datos_tipo_metodo_pago" => "1",
+        //     "facturacion_datos_tipo_moneda"      => "1",
+        //     "tipo_documento"                     => "5",
+        //     "nit_factura"                        => "178436029",
+        //     "razon_factura"                      => "GIPET",
+        //     "tipo_facturacion"                   => "online",
+        //     "uso_cafc"                           => "No",
+        //     "numero_factura_cafc"                => null,
+        //     "execpcion"                          => "false",
+        //     "complemento"                        => null,
+        //     "descuento_adicional"                => "0",
+        //     "monto_total"                        => "123.00"
+        // ];
+
+        // **************** EN FUERA DE LINEA ****************
+
         $datosRequest = [
             "cliente_id" => "3",
             "carrito" => [
@@ -4858,7 +4987,7 @@ class FacturaController extends Controller
                     "total"                 => "123.00",
                     "descuento"             => "0.00",
                     "subTotal"              => "123",
-                    "descripcion_adicional" => null
+                    "descripcion_adicional" => null,
                 ]
             ],
             "facturacion_datos_tipo_metodo_pago" => "1",
@@ -4866,21 +4995,23 @@ class FacturaController extends Controller
             "tipo_documento"                     => "5",
             "nit_factura"                        => "178436029",
             "razon_factura"                      => "GIPET",
-            "tipo_facturacion"                   => "online",
+            "tipo_facturacion"                   => "offline",
             "uso_cafc"                           => "No",
             "numero_factura_cafc"                => null,
             "execpcion"                          => "false",
             "complemento"                        => null,
             "descuento_adicional"                => "0",
-            "monto_total"                        => "123.00"
+            "monto_total"                        => "123.00",
         ];
+
 
         $usuario                          = Auth::user();
         $empresa                          = $usuario->empresa;
         $suscripcion                      = app(SuscripcionController::class);
         $obtenerSuscripcionVigenteEmpresa = $suscripcion->obtenerSuscripcionVigenteEmpresa($empresa);
 
-        for ($k=1; $k <= 125 ; $k++) {
+        //for ($k=1; $k <= 1 ; $k++) {
+        for ($k=1; $k <= 5000 ; $k++) {
 
             if($obtenerSuscripcionVigenteEmpresa){
 
@@ -5352,7 +5483,8 @@ class FacturaController extends Controller
             sleep(2);
 
         }
-        */
+
+
 
         // ======================================================================================================================================================
         // ========================================= EMISION DE FACTURA SECTOR EDUCATIVO ===============================================================
@@ -5499,6 +5631,7 @@ class FacturaController extends Controller
         // ======================================================================================================================================================
 
 
+        /*
         $facturas = Factura::where('usuario_creador_id', 3)
                             ->where('estado', 'Anulado')
                             // ->limit(1)
@@ -5589,6 +5722,7 @@ class FacturaController extends Controller
             echo json_encode($data)."<br><br>";
             sleep(2);
         }
+        */
         // ======================================================================================================================================================
         // ========================================= REVERTIR ANULACION  MASIVOOO ===============================================================
         // ======================================================================================================================================================

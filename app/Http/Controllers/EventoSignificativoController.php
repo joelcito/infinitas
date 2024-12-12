@@ -204,7 +204,10 @@ class EventoSignificativoController extends Controller
                     $nit
                 ));
 
+                // dd($cufd);
+
                 if($cufd->estado === "success"){
+
                     if($cufd->resultado->RespuestaCufd->transaccion){
 
                         $cufdNew                     = new Cufd();
@@ -221,7 +224,11 @@ class EventoSignificativoController extends Controller
                         $cufdNew->save();
                         $cufdRescatadoUtilizar =  $cufdNew;
 
+                    }else{
+
                     }
+                }else{
+
                 }
 
                 $header           = $empresa->api_token;
@@ -381,12 +388,11 @@ class EventoSignificativoController extends Controller
                                     ->orderBy('id', 'desc')
                                     ->limit(500)
                                     ->get();
-                $data['listado'] = view('factura.ajaxMuestraTableFacturaPaquete')->with(compact('facturas'))->render();
-                $data['estado'] = "success";
-            }else{
-                $data['listado'] = view('factura.ajaxMuestraTableFacturaPaquete')->with(compact('facturas'))->render();
-                $data['estado'] = "success";
             }
+
+            $data['listado'] = view('factura.ajaxMuestraTableFacturaPaquete')->with(compact('facturas'))->render();
+            $data['estado'] = "success";
+
         }else{
             $data['text']   = 'No existe';
             $data['estado'] = 'error';
@@ -507,8 +513,10 @@ class EventoSignificativoController extends Controller
                 $urlApiServicioSiat = new UrlApiServicioSiat();
                 if($documento_sector->codigo_clasificador == "8")
                     $UrlFacturaCompraVenta = $urlApiServicioSiat->getUrlFacturacionTasaCeroElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
-                else
+                else if($documento_sector->codigo_clasificador == "1")
                     $UrlFacturaCompraVenta = $urlApiServicioSiat->getUrlFacturacionCompraVentaElctronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
+                else
+                    $UrlFacturaCompraVenta = $urlApiServicioSiat->getUrlFacturacionSectorEducativoElectronica($empresa->codigo_ambiente, $empresa->codigo_modalidad);
 
                 $header                = $empresa->api_token;
                 $url3                  = $UrlFacturaCompraVenta->url_servicio;
@@ -544,64 +552,68 @@ class EventoSignificativoController extends Controller
                     $contenidoArchivo, $fechaEmicion, $hashArchivo, $codigo_cafc_contingencia, $contado, $codigo_evento_significativo
                 ));
 
-                // dd($res->resultado->RespuestaServicioFacturacion->transaccion);
+                // dd($res->resultado, $res);
 
-                if($res->resultado->RespuestaServicioFacturacion->transaccion){
+                if($res->resultado){
+                    if($res->resultado->RespuestaServicioFacturacion->transaccion){
 
-                    $header                = $empresa->api_token;
-                    $url3                  = $UrlFacturaCompraVenta->url_servicio;
-                    $codigoAmbiente        = $empresa->codigo_ambiente;
-                    $codigoDocumentoSector = $documento_sector->codigo_clasificador;
-                    $codigoModalidad       = $empresa->codigo_modalidad;
-                    $codigoPuntoVenta      = $punto_venta->codigoPuntoVenta;
-                    $codigoSistema         = $empresa->codigo_sistema;
-                    $codigoSucursal        = $sucursal->codigo_sucursal;
-                    $scufd                 = $cufdVigente->codigo;
-                    $scuis                 = $cuis->codigo;
-                    $nit                   = $empresa->nit;
-                    $tipoFacturaDocumento  = ($documento_sector->codigo_clasificador == "8")? 2 : 1;
+                        $header                = $empresa->api_token;
+                        $url3                  = $UrlFacturaCompraVenta->url_servicio;
+                        $codigoAmbiente        = $empresa->codigo_ambiente;
+                        $codigoDocumentoSector = $documento_sector->codigo_clasificador;
+                        $codigoModalidad       = $empresa->codigo_modalidad;
+                        $codigoPuntoVenta      = $punto_venta->codigoPuntoVenta;
+                        $codigoSistema         = $empresa->codigo_sistema;
+                        $codigoSucursal        = $sucursal->codigo_sucursal;
+                        $scufd                 = $cufdVigente->codigo;
+                        $scuis                 = $cuis->codigo;
+                        $nit                   = $empresa->nit;
+                        $tipoFacturaDocumento  = ($documento_sector->codigo_clasificador == "8")? 2 : 1;
 
-                    $validad = json_decode($siat->validacionRecepcionPaqueteFactura(
-                        $header,
-                        $url3,
-                        $codigoAmbiente,
-                        $codigoDocumentoSector,
-                        $codigoModalidad,
-                        $codigoPuntoVenta,
-                        $codigoSistema,
-                        $codigoSucursal,
-                        $scufd,
-                        $scuis,
-                        $nit,
-                        $tipoFacturaDocumento,
+                        $validad = json_decode($siat->validacionRecepcionPaqueteFactura(
+                            $header,
+                            $url3,
+                            $codigoAmbiente,
+                            $codigoDocumentoSector,
+                            $codigoModalidad,
+                            $codigoPuntoVenta,
+                            $codigoSistema,
+                            $codigoSucursal,
+                            $scufd,
+                            $scuis,
+                            $nit,
+                            $tipoFacturaDocumento,
 
-                        2,$res->resultado->RespuestaServicioFacturacion->codigoRecepcion
-                    ));
-                    if($validad->resultado->RespuestaServicioFacturacion->transaccion){
+                            2,$res->resultado->RespuestaServicioFacturacion->codigoRecepcion
+                        ));
+                        if($validad->resultado->RespuestaServicioFacturacion->transaccion){
 
-                        $data['estado'] = "success";
-                        $data['msg']    = $validad->resultado;
+                            $data['estado'] = "success";
+                            $data['msg']    = $validad->resultado;
 
-                        // Realizar la actualización utilizando Eloquent
-                        Factura::whereIn('id', $idsToUpdate)->update([
-                            'codigo_descripcion'    => $validad->resultado->RespuestaServicioFacturacion->codigoDescripcion,
-                            'codigo_recepcion'      => $validad->resultado->RespuestaServicioFacturacion->codigoRecepcion
-                        ]);
+                            // Realizar la actualización utilizando Eloquent
+                            Factura::whereIn('id', $idsToUpdate)->update([
+                                'codigo_descripcion'    => $validad->resultado->RespuestaServicioFacturacion->codigoDescripcion,
+                                'codigo_recepcion'      => $validad->resultado->RespuestaServicioFacturacion->codigoRecepcion
+                            ]);
+                        }else{
+                            $data['estado'] = "error";
+                            $data['msg']    = $validad->resultado;
+
+                            // Realizar la actualización utilizando Eloquent
+                            Factura::whereIn('id', $idsToUpdate)->update([
+                                'codigo_descripcion'    => $validad->resultado->RespuestaServicioFacturacion->codigoDescripcion,
+                                'codigo_recepcion'      => $validad->resultado->RespuestaServicioFacturacion->codigoRecepcion,
+                                'descripcion'           => $validad->resultado->RespuestaServicioFacturacion->mensajesList
+                            ]);
+                        }
                     }else{
                         $data['estado'] = "error";
-                        $data['msg']    = $validad->resultado;
-
-                        // Realizar la actualización utilizando Eloquent
-                        Factura::whereIn('id', $idsToUpdate)->update([
-                            'codigo_descripcion'    => $validad->resultado->RespuestaServicioFacturacion->codigoDescripcion,
-                            'codigo_recepcion'      => $validad->resultado->RespuestaServicioFacturacion->codigoRecepcion,
-                            'descripcion'           => $validad->resultado->RespuestaServicioFacturacion->mensajesList
-                        ]);
+                        $data['msg']    = $res->resultado;
                     }
                 }else{
-                    // dd($res);
                     $data['estado'] = "error";
-                    $data['msg']    = $res->resultado;
+                    $data['msg']    = $res->msg;
                 }
             } catch (ErrorException $e) {
                 $data['estado'] = "error";
@@ -611,7 +623,6 @@ class EventoSignificativoController extends Controller
             $data['text']   = 'No existe';
             $data['estado'] = 'error';
         }
-        // dd($data);
         return $data;
     }
 }

@@ -1548,13 +1548,13 @@ class SiatController extends Controller
                 try {
                     $client = new \SoapClient($wsdl,[
                         'stream_context' => $context,
-                        'cache_wsdl' => WSDL_CACHE_NONE,
-                        'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE
+                        'cache_wsdl'     => WSDL_CACHE_NONE,
+                        'compression'    => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | SOAP_COMPRESSION_DEFLATE
                     ]);
 
-                    $resultado = $client->cufd($parametros);
-                    $data['estado']     = 'success';
-                    $data['resultado']  = $resultado;
+                    $resultado         = $client->cufd($parametros);
+                    $data['estado']    = 'success';
+                    $data['resultado'] = $resultado;
                 } catch (SoapFault $fault) {
                     $resultado           = false;
                     $data['estado']      = 'error';
@@ -1565,6 +1565,9 @@ class SiatController extends Controller
                     // Captura cualquier otra excepción y maneja el error
                     $data['msgE']        = $e->getMessage();
                 }
+
+                // dd($data);
+
                 return json_encode($data, JSON_UNESCAPED_UNICODE);
 
             }else{
