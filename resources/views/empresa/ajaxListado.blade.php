@@ -7,6 +7,7 @@
             <th >Nit</th>
             <th >Razon Social</th>
             <th >Ambiente</th>
+            <th >Cantidad Fac</th>
             <th >Actions</th>
         </tr>
     </thead>
@@ -33,8 +34,12 @@
                     @endif
                 </td>
                 <td>
+                    {{ $e->facturas_count }}
+                </td>
+                <td>
                     <a class="btn btn-sm btn-info btn-icon" title="Detalles de la Empresa" href="{{ url('empresa/detalle', [$e->id]) }}"><i class="fa fa-eye"></i></a>
-                    @if (count($e->facturas) == 0 || $e->codigo_ambiente == "2")
+{{--                    @if (count($e->facturas) == 0 || $e->codigo_ambiente == "2")--}}
+                    @if ($e->facturas_count == 0 || $e->codigo_ambiente == "2")
                         <button class="btn btn-sm btn-icon btn-danger" title="Eliminar Empresa" onclick="eliminarEmpresa('{{ $e->id }}')"><i class="fa fa-trash"></i></button>
                     @endif
                 </td>

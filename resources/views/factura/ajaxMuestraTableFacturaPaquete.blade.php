@@ -27,8 +27,8 @@
                             <td>{{ $f->razon_social." | ".$f->codigo_descripcion }}</td>
                             <td>{{ $f->fecha }}</td>
                             <td>
-                                 {{-- <input type="checkbox" name="check_{{ $f->id }}"> --}}
-                                <input type="checkbox" checked name="check_{{ $f->id }}">
+                                <input type="checkbox" name="check_{{ $f->id }}">
+                                {{--<input type="checkbox" checked name="check_{{ $f->id }}">--}}
                             </td>
                         </tr>
                     @endforeach

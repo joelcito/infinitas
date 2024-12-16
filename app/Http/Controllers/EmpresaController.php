@@ -145,7 +145,8 @@ class EmpresaController extends Controller
     }
 
     protected function listadoArrayEmpresa(){
-        $empresas = Empresa::all();
+//        $empresas = Empresa::all();
+        $empresas = Empresa::withCount('facturas')->get();
         return view('empresa.ajaxListado')->with(compact('empresas'))->render();
     }
 

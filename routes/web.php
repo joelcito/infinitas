@@ -166,16 +166,12 @@ Route::middleware(['auth', 'one.session'])->group(function () {
 
         Route::post('/sacaNumeroCafcUltimo', [FacturaController::class, 'sacaNumeroCafcUltimo']);
 
-        // PARA LAS SINCRONIZACIONES MASA
+        //=============== PARA LAS SINCRONIZACIONES MASA ===============
         Route::get('/pruebas', [FacturaController::class, 'pruebas']);
         Route::get('/pruebaCompraVenta', [FacturaController::class, 'pruebaCompraVenta']);
-        // PARA LAS SINCRONIZACIONES MASA
-
-        // PARA CREACION DE FACTURAS MASA
         Route::get('/emiteFacturaMasa', [FacturaController::class, 'emiteFacturaMasa']);
         Route::get('/emiteFacturaMasaEspecifico', [FacturaController::class, 'emiteFacturaMasaEspecifico']);
-
-        // PARA CREACION DE FACTURAS MASA
+        //=============== PARA LAS SINCRONIZACIONES MASA ===============
 
         Route::get('/formularioFacturacionCv', [FacturaController::class, 'formularioFacturacionCv']);
         Route::post('/ajaxListadoServicios', [FacturaController::class, 'ajaxListadoServicios']);
