@@ -3757,7 +3757,7 @@ class FacturaController extends Controller
         // ======================================================================================================================================================
         // ========================================= EMISION DE FACTURA COMPRA Y VENTA===============================================================
         // ======================================================================================================================================================
-        /*
+
         //**************** EN LINEA ****************
          $datosRequest = [
              "cliente_id" => "1",
@@ -4352,7 +4352,7 @@ class FacturaController extends Controller
 
         }
 
-            */
+
 
         // ======================================================================================================================================================
         // ========================================= EMISION DE FACTURA COMPRA Y VENTA===============================================================
@@ -4430,6 +4430,7 @@ class FacturaController extends Controller
 
 
         /*
+
         $usuario        = Auth::user();
         $empresa        = $usuario->empresa;
 
@@ -4914,6 +4915,7 @@ class FacturaController extends Controller
 
         }
 
+
         */
 
         // ======================================================================================================================================================
@@ -4930,36 +4932,36 @@ class FacturaController extends Controller
         // ======================================================================================================================================================
 
 //         **************** EN LINEA ****************
-         $datosRequest = [
-             "cliente_id" => "3",
-             "carrito" => [
-                 [
-                     "servicio_id"           => "3",
-                     "descripcion"           => "MENSUALIDAD",
-                     "precio"                => "123.00",
-                     "numero_serie"          => null,
-                     "numero_imei"           => null,
-                     "empresa_id"            => "1",
-                     "cantidad"              => "1",
-                     "total"                 => "123.00",
-                     "descuento"             => "0.00",
-                     "subTotal"              => "123",
-                     "descripcion_adicional" => null
-                 ]
-             ],
-             "facturacion_datos_tipo_metodo_pago" => "1",
-             "facturacion_datos_tipo_moneda"      => "1",
-             "tipo_documento"                     => "5",
-             "nit_factura"                        => "178436029",
-             "razon_factura"                      => "GIPET",
-             "tipo_facturacion"                   => "online",
-             "uso_cafc"                           => "No",
-             "numero_factura_cafc"                => null,
-             "execpcion"                          => "false",
-             "complemento"                        => null,
-             "descuento_adicional"                => "0",
-             "monto_total"                        => "123.00"
-         ];
+//         $datosRequest = [
+//             "cliente_id" => "3",
+//             "carrito" => [
+//                 [
+//                     "servicio_id"           => "3",
+//                     "descripcion"           => "MENSUALIDAD",
+//                     "precio"                => "123.00",
+//                     "numero_serie"          => null,
+//                     "numero_imei"           => null,
+//                     "empresa_id"            => "1",
+//                     "cantidad"              => "1",
+//                     "total"                 => "123.00",
+//                     "descuento"             => "0.00",
+//                     "subTotal"              => "123",
+//                     "descripcion_adicional" => null
+//                 ]
+//             ],
+//             "facturacion_datos_tipo_metodo_pago" => "1",
+//             "facturacion_datos_tipo_moneda"      => "1",
+//             "tipo_documento"                     => "5",
+//             "nit_factura"                        => "178436029",
+//             "razon_factura"                      => "GIPET",
+//             "tipo_facturacion"                   => "online",
+//             "uso_cafc"                           => "No",
+//             "numero_factura_cafc"                => null,
+//             "execpcion"                          => "false",
+//             "complemento"                        => null,
+//             "descuento_adicional"                => "0",
+//             "monto_total"                        => "123.00"
+//         ];
 
         // **************** EN FUERA DE LINEA ****************
 
@@ -4996,6 +4998,7 @@ class FacturaController extends Controller
 //                ];
 
 
+                /*
                 $usuario                          = Auth::user();
                 $empresa                          = $usuario->empresa;
                 $suscripcion                      = app(SuscripcionController::class);
@@ -5478,6 +5481,7 @@ class FacturaController extends Controller
                 }
 
 
+                */
 
         // ======================================================================================================================================================
         // ========================================= EMISION DE FACTURA SECTOR EDUCATIVO ===============================================================
