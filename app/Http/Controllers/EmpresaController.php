@@ -1015,10 +1015,32 @@ class EmpresaController extends Controller
                 if($consultaPuntoVenta->estado === "success"){
                     if($consultaPuntoVenta->resultado->RespuestaConsultaPuntoVenta->transaccion){
                         $listaPuntosVentas = $consultaPuntoVenta->resultado->RespuestaConsultaPuntoVenta->listaPuntosVentas;
-                        foreach ($listaPuntosVentas as $key => $value) {
+
+//                        dd($listaPuntosVentas);
+
+                        if(is_array($listaPuntosVentas)){
+                            foreach ($listaPuntosVentas as $key => $value) {
+
+                                $puntoVenta = PuntoVenta::where('sucursal_id', $sucursal->id)
+                                                        ->where('codigoPuntoVenta', $value->codigoPuntoVenta)
+                                                        ->where('codigo_ambiente', $empresa->codigo_ambiente)
+                                                        ->first();
+
+                                if(is_null($puntoVenta)){
+                                    $puntoVenta                     = new PuntoVenta();
+                                    $puntoVenta->usuario_creador_id = Auth::user()->id;
+                                    $puntoVenta->sucursal_id        = $sucursal->id;
+                                    $puntoVenta->codigoPuntoVenta   = $value->codigoPuntoVenta;
+                                    $puntoVenta->nombrePuntoVenta   = $value->nombrePuntoVenta;
+                                    $puntoVenta->tipoPuntoVenta     = $value->tipoPuntoVenta;
+                                    $puntoVenta->codigo_ambiente    = $empresa->codigo_ambiente;
+                                    $puntoVenta->save();
+                                }
+                            }
+                        }else{
 
                             $puntoVenta = PuntoVenta::where('sucursal_id', $sucursal->id)
-                                                    ->where('codigoPuntoVenta', $value->codigoPuntoVenta)
+                                                    ->where('codigoPuntoVenta', $listaPuntosVentas->codigoPuntoVenta)
                                                     ->where('codigo_ambiente', $empresa->codigo_ambiente)
                                                     ->first();
 
@@ -1032,7 +1054,9 @@ class EmpresaController extends Controller
                                 $puntoVenta->codigo_ambiente    = $empresa->codigo_ambiente;
                                 $puntoVenta->save();
                             }
+
                         }
+
                         $data['estado'] = 'success';
                         $sucursal_id  = $sucursal->id;
                         $punto_ventas = PuntoVenta::where('sucursal_id', $sucursal->id)
