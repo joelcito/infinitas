@@ -1048,9 +1048,9 @@ class EmpresaController extends Controller
                                 $puntoVenta                     = new PuntoVenta();
                                 $puntoVenta->usuario_creador_id = Auth::user()->id;
                                 $puntoVenta->sucursal_id        = $sucursal->id;
-                                $puntoVenta->codigoPuntoVenta   = $value->codigoPuntoVenta;
-                                $puntoVenta->nombrePuntoVenta   = $value->nombrePuntoVenta;
-                                $puntoVenta->tipoPuntoVenta     = $value->tipoPuntoVenta;
+                                $puntoVenta->codigoPuntoVenta   = $listaPuntosVentas->codigoPuntoVenta;
+                                $puntoVenta->nombrePuntoVenta   = $listaPuntosVentas->nombrePuntoVenta;
+                                $puntoVenta->tipoPuntoVenta     = $listaPuntosVentas->tipoPuntoVenta;
                                 $puntoVenta->codigo_ambiente    = $empresa->codigo_ambiente;
                                 $puntoVenta->save();
                             }
