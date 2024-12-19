@@ -1403,16 +1403,16 @@ class FacturaController extends Controller
                                 $data['numero'] = $facturaVerdad->id;
 
                                 // ***************** ENVIAMOS EL CORREO DE LA FACTURA *****************
-                                // if($swFacturaEnvio){
-                                //     $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
-                                //     $this->enviaCorreo(
-                                //         $cliente->correo,
-                                //         $nombre,
-                                //         $facturaVerdad->numero,
-                                //         $facturaVerdad->fecha,
-                                //         $facturaVerdad->id
-                                //     );
-                                // }
+                                 if($swFacturaEnvio){
+                                     $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                                     $this->enviaCorreo(
+                                         $cliente->correo,
+                                         $nombre,
+                                         $facturaVerdad->numero,
+                                         $facturaVerdad->fecha,
+                                         $facturaVerdad->id
+                                     );
+                                 }
 
                             }else{
                                 $data['estado'] = "RECHAZADA";
@@ -6062,15 +6062,10 @@ class FacturaController extends Controller
         $mail = new PHPMailer(true);
 
         // Configuración de los parámetros SMTP
-        // $smtpHost       = 'mail.micarautolavado.com';
-        // $smtpPort       =  465;
-        // $smtpUsername   = 'admin@micarautolavado.com';
-        // $smtpPassword   = '-Z{DjF[D@y8G';
-
-        $smtpHost       = 'mail.facbol.com';
+        $smtpHost       = 'mail.infinitassoluciones.net';
         $smtpPort       =  465;
-        $smtpUsername   = 'facturacion@facbol.com';
-        $smtpPassword   = 'j}RXM[5&#yzz';
+        $smtpUsername   = 'facturacion@infinitassoluciones.net';
+        $smtpPassword   = '9Udjw_IMIS}D';
 
         try {
             $mail->setFrom($smtpUsername, $empresa->nombre);
