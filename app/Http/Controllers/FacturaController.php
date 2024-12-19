@@ -615,7 +615,7 @@ class FacturaController extends Controller
 
                     $cliente = Cliente::find($factura->cliente_id);
 
-                    $numeroFactura = $factura->uso_cafc == "Si" ? $factura->numero_factura : $factura->numero_cafc;
+                    $numeroFactura = $factura->uso_cafc == "Si" ? $factura->numero_cafc : $factura->numero_factura;
 
                     $correo = $cliente->correo;
                     $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
