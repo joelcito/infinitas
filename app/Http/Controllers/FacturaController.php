@@ -1408,7 +1408,7 @@ class FacturaController extends Controller
                                      $this->enviaCorreo(
                                          $cliente->correo,
                                          $nombre,
-                                         $facturaVerdad->numero,
+                                         $numeroFacturaEmpresa,
                                          $facturaVerdad->fecha,
                                          $facturaVerdad->id
                                      );
@@ -1473,7 +1473,7 @@ class FacturaController extends Controller
                             $this->enviaCorreo(
                                 $cliente->correo,
                                 $nombre,
-                                $facturaVerdad->numero,
+                                $numeroFacturaEmpresa,
                                 $facturaVerdad->fecha,
                                 $facturaVerdad->id
                             );
@@ -1898,7 +1898,7 @@ class FacturaController extends Controller
                                     $this->enviaCorreo(
                                         $cliente->correo,
                                         $nombre,
-                                        $facturaVerdad->numero,
+                                        $numeroFacturaEmpresa,
                                         $facturaVerdad->fecha,
                                         $facturaVerdad->id
                                     );
@@ -1964,7 +1964,7 @@ class FacturaController extends Controller
                             $this->enviaCorreo(
                                 $cliente->correo,
                                 $nombre,
-                                $facturaVerdad->numero,
+                                $numeroFacturaEmpresa,
                                 $facturaVerdad->fecha,
                                 $facturaVerdad->id
                             );
@@ -2389,7 +2389,7 @@ class FacturaController extends Controller
                                     $this->enviaCorreo(
                                         $cliente->correo,
                                         $nombre,
-                                        $facturaVerdad->numero,
+                                        $numeroFacturaEmpresa,
                                         $facturaVerdad->fecha,
                                         $facturaVerdad->id
                                     );
@@ -2454,7 +2454,7 @@ class FacturaController extends Controller
                             $this->enviaCorreo(
                                 $cliente->correo,
                                 $nombre,
-                                $facturaVerdad->numero,
+                                $numeroFacturaEmpresa,
                                 $facturaVerdad->fecha,
                                 $facturaVerdad->id
                             );
