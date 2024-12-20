@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Servicio extends Model
 {
@@ -40,5 +41,17 @@ class Servicio extends Model
                     ->where('detalles.servicio_id', $servico_id)
                     ->whereNull('detalles.deleted_at')
                     ->count();
+    }
+
+    public function cantidaStrockProducto($id_servico)
+    {
+        $stock = DB::table('movimientos')
+            ->select(DB::raw('(SUM(movimientos.ingreso) - SUM(movimientos.salida)) AS cantidad_stock'))
+            ->where('movimientos.servicio_id', $id_servico)
+            ->groupBy('movimientos.servicio_id')
+            ->first();
+
+        return $stock;
+
     }
 }

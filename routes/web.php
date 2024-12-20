@@ -192,6 +192,8 @@ Route::middleware(['auth', 'one.session'])->group(function () {
         Route::get('/formularioFacturacionSe', [FacturaController::class, 'formularioFacturacionSe']);
         Route::post('/emitirFacturaSe', [FacturaController::class, 'emitirFacturaSe']);
 
+        Route::post('/cantidaStrockProducto', [FacturaController::class, 'cantidaStrockProducto']);
+
     });
 
     Route::prefix('/registrocompras')->group(function(){

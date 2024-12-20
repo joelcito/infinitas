@@ -5960,6 +5960,16 @@ class FacturaController extends Controller
     }
 
 
+    public function cantidaStrockProducto(Request $request){
+        if($request->ajax()){
+            $id_servicio = $request->input('producto');
+            $data = $this->cantidadStockEmpresa($id_servicio);
+        }else{
+            $data['text']   = 'No existe';
+            $data['estado'] = 'error';
+        }
+        return $data;
+    }
     // ===================  FUNCIOENES PROTEGIDAS  ========================
     protected function calculaDigitoMod11($cadena, $numDig, $limMult, $x10){
 
@@ -6226,6 +6236,34 @@ class FacturaController extends Controller
 
         // $mail = new CorreoAnulacion($nombre, $numero, $fecha);
         // $response = Mail::to($correo)->send($mail);
+    }
+
+    protected function cantidadStockEmpresa($id_servicio){
+        $usuario = Auth::user();
+        $empresa = $usuario->empresa;
+        $servicio = Servicio::find($id_servicio);
+
+        if($servicio->empresa_id == $empresa->id){
+            $servicio = new Servicio();
+            $stock = $servicio->cantidaStrockProducto($id_servicio);
+            if($stock != null){
+                if($stock->cantidad_stock > 0){
+                    $data['text']   = 'Cantidad Existente en almacen';
+                    $data['estado'] = 'success';
+                    $data['cantidad'] = $stock->cantidad_stock;
+                }else{
+                    $data['text']   = 'Cantidad no disponible en almacen';
+                    $data['estado'] = 'error';
+                }
+            }else{
+                $data['text']   = 'Cantidad no disponible en almacen';
+                $data['estado'] = 'error';
+            }
+        }else{
+            $data['text']   = 'El producto no pertence a la empresa';
+            $data['estado'] = 'error';
+        }
+        return $data;
     }
     // ===================  FUNCIOENES PROTEGIDAS  ========================
 

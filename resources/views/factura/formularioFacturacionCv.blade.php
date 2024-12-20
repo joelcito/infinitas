@@ -221,7 +221,7 @@
                         <div id="tabla_ventas">
                             <form id="formulario_venta">
                                 <div class="row">
-                                    <div class="col-md-5">
+                                    <div class="col-md-4">
                                         <label class="required fw-semibold fs-6 mb-2">Servicio / Producto</label>
                                         <select name="serivicio_id_venta" id="serivicio_id_venta" class="form-control form-control-sm" onchange="identificaSericio(this)" required>
                                             <option value="">SELECCIONE</option>
@@ -238,14 +238,18 @@
                                         <label class="required fw-semibold fs-6 mb-2">Cantidad</label>
                                         <input type="number" class="form-control form-control-sm" id="cantidad_venta" name="cantidad_venta" value="0" min="1" required onkeyup="calcularPrecioTotal()">
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md">
                                         <label class="required fw-semibold fs-6 mb-2">Total</label>
                                         <input type="number" class="form-control form-control-sm" id="total_venta" name="total_venta" value="0" min="1" required readonly>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md" style="display: none" id="bloque-cantidad-producto">
+                                        <label class="required fw-semibold fs-6 mb-2">Stock</label>
+                                        <input type="number" class="form-control form-control-sm" id="cantidad_stock" name="cantidad_stock" value="0" min="1" required readonly>
+                                    </div>
+                                    <div class="col-md-3">
                                         <button class="btn btn-info btn-circle btn-sm btn-icon mt-9" type="button" onclick="modalAgregarProducto()" title="Agregar Producto"><i class="fa fa-cubes"></i> +</button>
                                         <button class="btn btn-primary btn-circle btn-sm btn-icon mt-9" type="button" onclick="mostraBloqueMasDatosProdcuto()" title="Mostrar mas opcion"><i class="fa fa-note-sticky"></i> +</button>
-                                        <button class="btn btn-success btn-circle btn-sm btn-icon mt-9" type="button" onclick="agregarProducto()" title="Agregar al Carro de compras"><i class="fa fa-shopping-cart"></i> +</button>
+                                        <button class="btn btn-success btn-circle btn-sm btn-icon mt-9" type="button" onclick="agregarProducto()" title="Agregar al Carro de compras" id="boton-agrega-producto" disabled><i class="fa fa-shopping-cart"></i> +</button>
                                     </div>
                                 </div>
                                 <div class="row" style="display: none;" id="bloque_mas_datos_productos">
@@ -514,7 +518,7 @@
         }
 
         function identificaSericio(selected){
-
+            // $('#boton-agrega-producto').attr('disabled', true);
             if(selected.value != ''){
                 var json = JSON.parse(selected.value);
                 $('#precio_venta').val(json.precio)
@@ -522,6 +526,36 @@
                 $('#total_venta').val((1*json.precio))
                 $('#numero_serie').val(json.numero_serie)
                 $('#codigo_imei').val(json.codigo_imei)
+                if(json.tipo == 'producto'){
+                    $.ajax({
+                        url: "{{ url('factura/cantidaStrockProducto') }}",
+                        method: "POST",
+                        data: {producto:json.id},
+                        success: function (data) {
+                            if(data.estado === 'success'){
+                                $("#bloque-cantidad-producto").show('toggle')
+                                $("#cantidad_stock").val(parseInt(data.cantidad))
+                                $('#boton-agrega-producto').attr('disabled', false);
+                                $('#cantidad_venta').attr('max', parseInt(data.cantidad));
+                            }else{
+                                Swal.fire({
+                                    icon:'error',
+                                    title: "ERROR!",
+                                    text:  data.text,
+                                    timer: 4000
+                                })
+
+                                $('#boton-agrega-producto').attr('disabled', true);
+                                $("#cantidad_stock").val(0)
+                                $('#cantidad_venta').attr('max', 0);
+                            }
+                        }
+                    })
+                }else{
+                    $("#cantidad_stock").val(0)
+                    $("#bloque-cantidad-producto").hide('toggle')
+                    $('#boton-agrega-producto').attr('disabled', false);
+                }
             }else{
                 $('#precio_venta').val(0)
                 $('#cantidad_venta').val(0)
@@ -529,8 +563,10 @@
                 $('#numero_serie').val(null)
                 $('#codigo_imei').val(null)
                 $('#descripcion_adicional').val(null)
-            }
 
+                $('#cantidad_venta').removeAttr('max');
+
+            }
         }
 
         function agregarProducto(){
@@ -630,6 +666,7 @@
                 $('#serivicio_id_venta').val(null).trigger('change');
                 $('#tabla_detalles').show('toggle')
                 $('#bloque_seleccionar_cliente').show('toggle')
+                $("#cantidad_stock").val(0)
 
             }else{
                 $("#formulario_venta")[0].reportValidity();
@@ -812,8 +849,6 @@
 
             }
         }
-
-
 
         function emitirFactura(){
 
