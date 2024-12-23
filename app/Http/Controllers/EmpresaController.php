@@ -22,6 +22,8 @@ use App\Models\Sucursal;
 use App\Models\Suscripcion;
 use App\Models\UrlApiServicioSiat;
 use App\Models\User;
+//use Barryvdh\DomPDF\PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -2753,6 +2755,28 @@ class EmpresaController extends Controller
         }
 
         return $data;
+
+    }
+
+
+    public function reportePdfIngresoSalidaProducto(Request $request, $id_producto){
+
+//        dd($request->all(), $id_producto);
+
+        $usuario  = Auth::user();
+        $empresa  = $usuario->empresa;
+        $producto = Servicio::find($id_producto);
+
+        if($producto->empresa_id == $empresa->id){
+
+//            $pdf    = PDF::loadView('pdf.reportePdfTotalAlumnos', compact('carreras', 'turnos'))->setPaper('letter');
+            $pdf    = PDF::loadView('empresa.pdf.reportePdfIngresoSalidaProducto')->setPaper('letter');
+            // return $pdf->download('boletinInscripcion_'.date('Y-m-d H:i:s').'.pdf');
+            return $pdf->stream('cantidadAlumnos_'.date('Y-m-d H:i:s').'.pdf');
+
+        }else{
+
+        }
 
     }
 

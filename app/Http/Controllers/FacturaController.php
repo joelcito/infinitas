@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\UnauthorizedException;
 use Maatwebsite\Excel\Facades\Excel;
 use PharData;
@@ -610,6 +611,12 @@ class FacturaController extends Controller
                 if($respuesta->resultado->RespuestaServicioFacturacion->transaccion){
                     $factura->estado = 'Anulado';
 
+                    // Obtener los IDs de los detalles
+                    $detalleIds = Detalle::where('factura_id', $factura->id)->pluck('id')->toArray();
+
+                    //ELIMINAMOS LOS MOVIMIENTOS
+                    Movimiento::whereIn('detalle_id', $detalleIds)->delete();
+
                     // PARA ELIMINAR LOS DETALLES
                     Detalle::where('factura_id', $factura->id)->delete();
 
@@ -716,9 +723,19 @@ class FacturaController extends Controller
             if($respuesta->estado == "success"){
                 if($respuesta->resultado->RespuestaServicioFacturacion->transaccion){
                     $factura->estado = null;
+
+                    //ESTO ES PARA DETALLES
                     Detalle::withTrashed()
                             ->where('factura_id', $factura->id)
                             ->update(['deleted_at' => null]);
+
+                    $idsDetalle = Detalle::where('factura_id', $factura->id)->get()->pluck('id')->toArray();
+
+                    //AHORA AREMOS PARA MOVIMIENTOS
+                    Movimiento::withTrashed()
+                                ->whereIn('detalle_id', $idsDetalle)
+                                ->update(['deleted_at' => null]);
+
                     $factura->save();
                     $data['estado'] = 'success';
                     $data['msg'] = $respuesta->resultado->RespuestaServicioFacturacion->codigoDescripcion;
@@ -1101,6 +1118,9 @@ class FacturaController extends Controller
 
                     array_push($contenidoFacturaFcv, $cabeceraFcv);
 
+                    //================================== COMENZAMOS LA TRANSACCION ==================================
+                    DB::beginTransaction();
+
                     // ----------------- AGREGAMOS EN L ATABLA DETALLES -----------------
                     foreach($carroVentas as $key => $item){
 
@@ -1125,6 +1145,32 @@ class FacturaController extends Controller
 
                         $servicio = Servicio::find($item['servicio_id']);
 
+                        //VERIFICAMOS PARA LOS PRODUCTOS
+                        if($servicio->tipo == "producto"){
+
+                            //AQUI LO MOVEREMOS LOS DETALLES PARA NO HACER OTRO FOR ABAJO
+                            $movimiento                     = new Movimiento();
+                            $movimiento->usuario_creador_id = $usuario->id;
+                            $movimiento->sucursal_id        = $sucursal_objeto->id;
+                            $movimiento->servicio_id        = $servicio->id;
+                            $movimiento->detalle_id         = $detalle->id;
+                            $movimiento->salida             = $detalle->cantidad;
+                            $movimiento->ingreso            = 0;
+                            $movimiento->fecha              = date('Y-m-d H:i:s');
+                            $movimiento->descripcion        = "VENTA";
+                            $movimiento->save();
+
+                            //VERIFICAMOS QUE EXISTA EN ALMACEN ANTES DE CONTINUAR
+                            $cantidad_almacen = $this->cantidadStockEmpresa($item['servicio_id']);
+                            if($item['cantidad'] > $cantidad_almacen['cantidad']){
+                                $servicio = Servicio::find($item['servicio_id']);
+                                DB::rollBack();
+                                $data['estado'] = 'error';
+                                $data['text']   = 'Cantidad Solicitada '.$item['cantidad'].', cantidad en almacen '.$cantidad_almacen['cantidad'].' del producto '.$servicio->descripcion;
+                                return $data;
+                            }
+                        }
+
                         array_push($idDetalles, $detalle->id);
 
                         // ARMAMOS EL CONTENIDO DEL DETALLE
@@ -1145,6 +1191,9 @@ class FacturaController extends Controller
                         array_push($contenidoFacturaFcv, $DetalleFcv);
 
                     }
+
+                    // ================================== Si todo ha pasado correctamente, hacer commit ==================================
+                    DB::commit();
 
                     $contenidoFacturaPadreFcv['factura'] = $contenidoFacturaFcv;
                     $datos                               = $contenidoFacturaPadreFcv;
@@ -1374,7 +1423,7 @@ class FacturaController extends Controller
                                 $facturaVerdad->tipo_factura             = "online";
                                 $facturaVerdad->save();
 
-                                // AHORA AREMOS PARA LOS PAGOS
+                                // AHORA AREMOS PARA LOS DETALLES
                                 Detalle::whereIn('id', $idDetalles)
                                         ->update([
                                             'estado'     => 'Finalizado',
@@ -1382,24 +1431,24 @@ class FacturaController extends Controller
                                         ]);
 
                                 // DE AQUI VERIFICAMOS SI ES PRODUCTO O SERVICIO
-                                foreach($idDetalles as $idDetalle){
-
-                                    $detalle  = Detalle::find($idDetalle);
-                                    $servicio = $detalle->servicio;
-
-                                    if($servicio->tipo == 'producto'){
-                                        $movimiento                     = new Movimiento();
-                                        $movimiento->usuario_creador_id = $usuario->id;
-                                        $movimiento->sucursal_id        = $sucursal_objeto->id;
-                                        $movimiento->servicio_id        = $servicio->id;
-                                        $movimiento->salida             = $detalle->cantidad;
-                                        $movimiento->ingreso            = 0;
-                                        $movimiento->fecha              = date('Y-m-d H:i:s');
-                                        $movimiento->descripcion        = "VENTA";
-                                        $movimiento->save();
-                                    }
-
-                                }
+//                                foreach($idDetalles as $idDetalle){
+//
+//                                    $detalle  = Detalle::find($idDetalle);
+//                                    $servicio = $detalle->servicio;
+//
+//                                    if($servicio->tipo == 'producto'){
+//                                        $movimiento                     = new Movimiento();
+//                                        $movimiento->usuario_creador_id = $usuario->id;
+//                                        $movimiento->sucursal_id        = $sucursal_objeto->id;
+//                                        $movimiento->servicio_id        = $servicio->id;
+//                                        $movimiento->salida             = $detalle->cantidad;
+//                                        $movimiento->ingreso            = 0;
+//                                        $movimiento->fecha              = date('Y-m-d H:i:s');
+//                                        $movimiento->descripcion        = "VENTA";
+//                                        $movimiento->save();
+//                                    }
+//
+//                                }
 
                                 $data['estado'] = $codigo_descripcion;
                                 $data['numero'] = $facturaVerdad->id;

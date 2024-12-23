@@ -18,12 +18,13 @@
                 <td>{{ $s->descripcion }}</td>
                 <td>{{ $s->precio }}</td>
                 <td>
-                    <button class="btn btn-warning btn-icon btn-sm" onclick="editaraSErvicio('{{ $s->id }}', '{{ $s->siat_documento_sector_id }}','{{ $s->siat_depende_actividades_id }}','{{ $s->siat_producto_servicios_id }}','{{ $s->siat_unidad_medidas_id }}','{{ $s->numero_serie }}','{{ $s->codigo_imei }}','{{ $s->descripcion }}','{{ $s->precio }}')"><i class="fa fa-edit"></i></button>
+                    <button class="btn btn-warning btn-icon btn-sm" title="Editar Producto Servicio" onclick="editaraSErvicio('{{ $s->id }}', '{{ $s->siat_documento_sector_id }}','{{ $s->siat_depende_actividades_id }}','{{ $s->siat_producto_servicios_id }}','{{ $s->siat_unidad_medidas_id }}','{{ $s->numero_serie }}','{{ $s->codigo_imei }}','{{ $s->descripcion }}','{{ $s->precio }}')"><i class="fa fa-edit"></i></button>
                     @if ($s->detalles($s->id) == "0")
-                        <button class="btn btn-danger btn-icon btn-sm" onclick="eliminarServicio('{{ $s->id }}')"><i class="fa fa-trash"></i></button>
+                        <button class="btn btn-danger btn-icon btn-sm" title="Ingreso de Producto" onclick="eliminarServicio('{{ $s->id }}')"><i class="fa fa-trash"></i></button>
                     @endif
                     @if ($s->tipo == 'producto')
                         <button class="btn btn-info btn-icon btn-sm" onclick="ingresoProducto('{{ $s->id }}')"><i class="fa fa-cube"></i></button>
+                        <a href="{{url('empresa/reportePdfIngresoSalidaProducto',[$s->id])}}" class="btn btn-dark btn-icon btn-sm" title="Reporte de Ingreso y Salida"><i class="fa fa-file-pdf"></i></a>
                     @endif
                 </td>
             </tr>

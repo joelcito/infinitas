@@ -115,6 +115,8 @@ Route::middleware(['auth', 'one.session'])->group(function () {
         Route::post('/ajaxDetalleIngresoProducto', [EmpresaController::class, 'ajaxDetalleIngresoProducto']);
         Route::post('/ingresoProductoSucursal', [EmpresaController::class, 'ingresoProductoSucursal']);
 
+        Route::get('/reportePdfIngresoSalidaProducto/{id_producto}',[EmpresaController::class, 'reportePdfIngresoSalidaProducto']);
+
     });
 
     Route::prefix('/sincronizacion')->group(function(){
