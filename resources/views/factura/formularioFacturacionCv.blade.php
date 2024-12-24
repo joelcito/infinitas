@@ -348,7 +348,7 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <label for="">M. Pago</label>
-                                        <select name="facturacion_datos_tipo_metodo_pago" id="facturacion_datos_tipo_metodo_pago" class="form-control form-control-sm" required>
+                                        <select name="facturacion_datos_tipo_metodo_pago" id="facturacion_datos_tipo_metodo_pago" class="form-control form-control-sm" required onchange="verificaTipoPago(this)">
                                             @foreach($tipoMetodoPago as $key => $value)
                                             <option value="{{ $value->tipo_clasificador }}" {{ ($value->tipo_clasificador == "1")? 'selected' :'' }}>{{ $value->descripcion }}</option>
                                             @endforeach
@@ -413,6 +413,13 @@
                                     <div class="col-md-2" id="numero_fac_cafc" style="display: none;">
                                         <label for="">Numero de CAFC:</label>
                                         <input type="number" class="form-control form-control-sm" id="numero_factura_cafc" name="numero_factura_cafc">
+                                    </div>
+                                </div>
+                                <div class="row" id="bloque-tipo-pago" style="display: none">
+                                    <div class="col-md-12">
+                                        <label for="">Numero de Tarjeta:</label>
+{{--                                        <input type="text" class="form-control form-control-sm" id="numero_tarjeta" name="numero_tarjeta" oninput="verificarNumeroTarjeta()" placeholder="Ingrese el número de la tarjeta" />--}}
+                                        <input type="number" class="form-control form-control-sm" id="numero_tarjeta" name="numero_tarjeta" oninput="verificarNumeroTarjeta()" placeholder="Ingrese el número de la tarjeta" />
                                     </div>
                                 </div>
                                 <div class="row" id="bloque_exepcion" style="display: none">
@@ -850,6 +857,36 @@
             }
         }
 
+        function verificaTipoPago(select){
+            let valor = select.value;
+            console.log(valor)
+
+            if(valor == 2){
+                $('#bloque-tipo-pago').show('toggle')
+            }else{
+                $('#bloque-tipo-pago').hide('toggle')
+            }
+        }
+
+        function  verificarNumeroTarjeta(){
+            const input = document.getElementById("numero_tarjeta");
+            let valor = input.value;
+
+            // Asegurarse de que solo se ingresen números
+            valor = valor.replace(/\D/g, ""); // Elimina cualquier carácter no numérico
+
+            // Enmascarar el número de la tarjeta
+            if (valor.length > 8) {
+                // const primeros4 = valor.substring(0, 4);
+                // const ultimos4 = valor.slice(-4);
+                // const masked = `${primeros4}${"x".repeat(valor.length - 8)}${ultimos4}`;
+                input.value = masked;
+            } else {
+                input.value = valor; // Muestra el valor completo si es menor o igual a 8 dígitos
+            }
+
+        }
+
         function emitirFactura(){
 
             if($("#formularioGeneraFactura")[0].checkValidity()){
@@ -870,6 +907,7 @@
                             cliente_id                        : $('#cliente_id_escogido').val(),
                             carrito                           : arrayProductoCar,
                             facturacion_datos_tipo_metodo_pago: $('#facturacion_datos_tipo_metodo_pago').val(),
+                            numero_tarjeta: $('#numero_tarjeta').val(),
                             facturacion_datos_tipo_moneda     : $('#facturacion_datos_tipo_moneda').val(),
                             tipo_documento                    : $('#tipo_documento').val(),
                             nit_factura                       : $('#nit_factura').val(),
