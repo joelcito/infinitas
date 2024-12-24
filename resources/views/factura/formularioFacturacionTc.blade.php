@@ -960,6 +960,15 @@
             }
         }
 
+        function verificaTipoPago(select){
+            let valor = select.value;
+            if(valor == 2 || valor == 10){
+                $('#bloque-tipo-pago').show('toggle')
+            }else{
+                $('#bloque-tipo-pago').hide('toggle')
+            }
+        }
+
         function ejecutarDescuentoAdicional(){
             // let sumaTotal = arrayProductoCar.reduce((sum, current) => sum + current.subTotal, 0);
             // let descuentoAdicional = $('#descuento_adicional').val();

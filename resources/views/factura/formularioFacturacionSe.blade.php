@@ -522,7 +522,7 @@
 
         function verificaTipoPago(select){
             let valor = select.value;
-            if(valor == 2){
+            if(valor == 2 || valor == 10){
                 $('#bloque-tipo-pago').show('toggle')
             }else{
                 $('#bloque-tipo-pago').hide('toggle')
@@ -851,6 +851,7 @@
                             cliente_id                        : $('#cliente_id_escogido').val(),
                             carrito                           : arrayProductoCar,
                             facturacion_datos_tipo_metodo_pago: $('#facturacion_datos_tipo_metodo_pago').val(),
+                            numero_tarjeta: $('#numero_tarjeta').val(),
                             facturacion_datos_tipo_moneda     : $('#facturacion_datos_tipo_moneda').val(),
                             tipo_documento                    : $('#tipo_documento').val(),
                             nit_factura                       : $('#nit_factura').val(),
