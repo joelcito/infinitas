@@ -2107,6 +2107,8 @@ class FacturaController extends Controller
                     $contenidoFacturaPadreFcv = array();
                     $idDetalles               = array();
 
+                    $cliente = Cliente::find($cliente_id);
+
                     $contenidoabeceraFcv['nitEmisor']                    = $empresa_objeto->nit;
                     $contenidoabeceraFcv['razonSocialEmisor']            = $empresa_objeto->razon_social;
                     $contenidoabeceraFcv['municipio']                    = $empresa_objeto->municipio;
@@ -2130,8 +2132,11 @@ class FacturaController extends Controller
                     $contenidoabeceraFcv['numeroDocumento']              = $nit_factura;
                     $contenidoabeceraFcv['complemento']                  = ($complemento != null && $complemento != '')? $complemento : null;
                     $contenidoabeceraFcv['codigoCliente']                = $cliente_id;
-                    $contenidoabeceraFcv['nombreEstudiante']             = 'LUIS FLORES';
-                    $contenidoabeceraFcv['periodoFacturado']             = 'JUNIO 2019';
+                    $contenidoabeceraFcv['nombreEstudiante']             = $cliente->nombres.' '.$cliente->ap_paterno;
+
+                    $mesLiteral                                          = strtoupper(Carbon::now()->locale('es')->translatedFormat('F'));
+                    $contenidoabeceraFcv['periodoFacturado']             = $mesLiteral.' '.date('Y');
+
                     $contenidoabeceraFcv['codigoMetodoPago']             = $facturacion_datos_tipo_metodo_pago;
                     $contenidoabeceraFcv['numeroTarjeta']                = null;
                     $contenidoabeceraFcv['montoTotal']                   = $monto_total;
