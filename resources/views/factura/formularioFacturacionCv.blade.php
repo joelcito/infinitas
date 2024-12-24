@@ -859,9 +859,7 @@
 
         function verificaTipoPago(select){
             let valor = select.value;
-            console.log(valor)
-
-            if(valor == 2){
+            if(valor == 2 || valor == 10){
                 $('#bloque-tipo-pago').show('toggle')
             }else{
                 $('#bloque-tipo-pago').hide('toggle')

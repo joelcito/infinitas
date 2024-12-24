@@ -1609,6 +1609,7 @@ class FacturaController extends Controller
                     $descuento_adicional                = $request->input('descuento_adicional');
                     $monto_total                        = $request->input('monto_total');
                     $uso_cafc                           = $request->input('uso_cafc');
+                    $numero_tarjeta                     = $request->input('numero_tarjeta');
                     $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
 
                     $contenidoabeceraFcv      = array();
@@ -1644,7 +1645,7 @@ class FacturaController extends Controller
                     $contenidoabeceraFcv['complemento']                  = ($complemento != null && $complemento != '')? $complemento : null;
                     $contenidoabeceraFcv['codigoCliente']                = $cliente_id;
                     $contenidoabeceraFcv['codigoMetodoPago']             = $facturacion_datos_tipo_metodo_pago;
-                    $contenidoabeceraFcv['numeroTarjeta']                = null;
+                    $contenidoabeceraFcv['numeroTarjeta']                = ($facturacion_datos_tipo_metodo_pago == 1)? null : $numero_tarjeta;
                     $contenidoabeceraFcv['montoTotal']                   = $monto_total;
                     $contenidoabeceraFcv['montoTotalSujetoIva']          = 0; //PARA ESTE SECTOR ENVIAR 0
                     $contenidoabeceraFcv['codigoMoneda']                 = $facturacion_datos_tipo_moneda;
