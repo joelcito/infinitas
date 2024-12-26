@@ -51,6 +51,7 @@ return new class extends Migration
             $table->text('tipo_factura')->nullable();
             $table->text('uso_cafc')->nullable();
             $table->string('registro_compra',2)->nullable();
+            $table->decimal('monto_gift_card',12,2)->nullable();
 
             $table->string('estado')->nullable();
             $table->datetime('deleted_at')->nullable();
