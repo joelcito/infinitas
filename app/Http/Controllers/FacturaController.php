@@ -1613,6 +1613,8 @@ class FacturaController extends Controller
                     $monto_total                        = $request->input('monto_total');
                     $uso_cafc                           = $request->input('uso_cafc');
                     $numero_tarjeta                     = $request->input('numero_tarjeta');
+                    $monto_gift_card                    = $request->input('monto_gift_card');
+                    $numeroEnmascarado                  = ($numero_tarjeta != null)? substr($numero_tarjeta, 0, 4) . str_repeat('0', strlen($numero_tarjeta) - 8) . substr($numero_tarjeta, -4) : null;
                     $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
 
                     $contenidoabeceraFcv      = array();
@@ -1648,13 +1650,13 @@ class FacturaController extends Controller
                     $contenidoabeceraFcv['complemento']                  = ($complemento != null && $complemento != '')? $complemento : null;
                     $contenidoabeceraFcv['codigoCliente']                = $cliente_id;
                     $contenidoabeceraFcv['codigoMetodoPago']             = $facturacion_datos_tipo_metodo_pago;
-                    $contenidoabeceraFcv['numeroTarjeta']                = ($facturacion_datos_tipo_metodo_pago == 1)? null : $numero_tarjeta;
+                    $contenidoabeceraFcv['numeroTarjeta']                = ($facturacion_datos_tipo_metodo_pago == 1)? null : $numeroEnmascarado;
                     $contenidoabeceraFcv['montoTotal']                   = $monto_total;
                     $contenidoabeceraFcv['montoTotalSujetoIva']          = 0; //PARA ESTE SECTOR ENVIAR 0
                     $contenidoabeceraFcv['codigoMoneda']                 = $facturacion_datos_tipo_moneda;
                     $contenidoabeceraFcv['tipoCambio']                   = 1;
                     $contenidoabeceraFcv['montoTotalMoneda']             = $monto_total;
-                    $contenidoabeceraFcv['montoGiftCard']                = null;
+                    $contenidoabeceraFcv['montoGiftCard']                = $monto_gift_card;
                     $contenidoabeceraFcv['descuentoAdicional']           = $descuento_adicional;
                     $contenidoabeceraFcv['codigoExcepcion']              = ($execpcion === "true")? 1 : 0;
                     $contenidoabeceraFcv['cafc']                         = null;
