@@ -427,14 +427,21 @@
                 <td colspan="2" style="text-align: right; padding-right: 10px;"><b>MONTO A PAGAR Bs</b></td>
                 {{--  <td style="text-align: right;"><b>{{ number_format($to,2) }}</b></td>  --}}
                 <td style="text-align: right;">
-                    <b>{{ number_format((float) $archivoXML->cabecera->montoTotal,2) }}</b>
+                    @php
+                            $monto_gif_card = number_format( (float) $archivoXML->cabecera->montoGiftCard, 2);
+                            $monto_total = number_format((float) $archivoXML->cabecera->montoTotal,2);
+                            $total = $monto_total-$monto_gif_card;
+                    @endphp
+{{--                    <b>{{ number_format((float) $archivoXML->cabecera->montoTotal,2) }}</b>--}}
+                    <b>{{ number_format((float) $total,2)  }}</b>
                 </td>
             </tr>
             @if ($tipo_documento_sector != "8")
                 <tr>
                     <td colspan="2" style="text-align: right; padding-right: 10px;"><b>IMPORTE BASE CRÉDITO FISCAL</b></td>
                     <td style="text-align: right;">
-                        <b>{{ number_format((float) $archivoXML->cabecera->montoTotal,2) }}</b>
+{{--                        <b>{{ number_format((float) $archivoXML->cabecera->montoTotal,2) }}</b>--}}
+                        <b>{{ number_format((float) $total,2)  }}</b>
                     </td>
                 </tr>
             @endif
