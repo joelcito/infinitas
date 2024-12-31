@@ -386,9 +386,10 @@
                     {{-- ESTE ES EL NUEVO --}}
                     @php
 
-//                            $monto_gif_card = number_format( (float) $archivoXML->cabecera->montoGiftCard, 2);
+                            // $monto_gif_card = number_format( (float) $archivoXML->cabecera->montoGiftCard, 2);
+                            // $monto_total = number_format((float) $archivoXML->cabecera->montoTotal,2);
+
                             $monto_gif_card = (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) $archivoXML->cabecera->montoGiftCard : 0;
-//                            $monto_total = number_format((float) $archivoXML->cabecera->montoTotal,2);
                             $monto_total = (isset($archivoXML->cabecera->montoTotal) && is_numeric($archivoXML->cabecera->montoTotal))? (float) $archivoXML->cabecera->montoTotal : 0;
                             $to = $monto_total-$monto_gif_card;
 
@@ -435,9 +436,13 @@
                 {{--  <td style="text-align: right;"><b>{{ number_format($to,2) }}</b></td>  --}}
                 <td style="text-align: right;">
                     @php
-                            $monto_gif_card = number_format( (float) $archivoXML->cabecera->montoGiftCard, 2);
-                            $monto_total = number_format((float) $archivoXML->cabecera->montoTotal,2);
-                            $total = $monto_total-$monto_gif_card;
+//                            $monto_gif_card = (float) $archivoXML->cabecera->montoGiftCard;
+//                            $monto_total    = (float) $archivoXML->cabecera->montoTotal;
+
+                            $monto_gif_card = (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) $archivoXML->cabecera->montoGiftCard : 0;
+                            $monto_total    = (isset($archivoXML->cabecera->montoTotal) && is_numeric($archivoXML->cabecera->montoTotal))? (float) $archivoXML->cabecera->montoTotal : 0;
+
+                            $total          = $monto_total-$monto_gif_card;
                     @endphp
 {{--                    <b>{{ number_format((float) $archivoXML->cabecera->montoTotal,2) }}</b>--}}
                     <b>{{ number_format((float) $total,2)  }}</b>
