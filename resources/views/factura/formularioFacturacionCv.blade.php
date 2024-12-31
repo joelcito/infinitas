@@ -870,12 +870,14 @@
 
         function verificaTipoPago(select){
             let valor = select.value;
-            if(valor == 2 || valor == 10  || valor == 83 || valor == 18 || valor == 86){
+            if(valor == 2 || valor == 10  || valor == 83 || valor == 162 || valor == 86){
                 $('#bloque-tipo-pago').show('toggle')
+
                 $('#monto_gift_card').val(null)
                 $('#bloque-gifr-card').hide('toggle')
             }else if(valor == 27 || valor == 35){
                 $('#bloque-gifr-card').show('toggle')
+                
                 $('#numero_tarjeta').val(null)
                 $('#bloque-tipo-pago').hide('toggle')
             }else{
