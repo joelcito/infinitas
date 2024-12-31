@@ -386,38 +386,39 @@
                     {{-- ESTE ES EL NUEVO --}}
                     @php
 
-                            function getXmlValue($element, $default = 0) {
-                                return (isset($element) && (string) $element !== '') ? (float) (string) $element : $default;
-                            }
+                        function getXmlValue($element, $default = 0) {
+                            return (isset($element) && (string) $element !== '') ? (float) (string) $element : $default;
+                        }
 
-                                // $monto_gif_card = number_format( (float) $archivoXML->cabecera->montoGiftCard, 2);
-                                // $monto_total = number_format((float) $archivoXML->cabecera->montoTotal,2);
+                        // $monto_gif_card = number_format( (float) $archivoXML->cabecera->montoGiftCard, 2);
+                        // $monto_total = number_format((float) $archivoXML->cabecera->montoTotal,2);
 
-                                dd(
-                                    $archivoXML->cabecera->montoGiftCard,
-                                    $archivoXML->cabecera->montoTotal,
-                                    isset($archivoXML->cabecera->montoGiftCard),
-                                    is_numeric($archivoXML->cabecera->montoGiftCard),
-                                    (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) (string) $archivoXML->cabecera->montoGiftCard : 0,
-                                    (isset($archivoXML->cabecera->montoTotal) && is_numeric($archivoXML->cabecera->montoTotal))? (float) (string) $archivoXML->cabecera->montoTotal : 0,
-                                    getXmlValue($archivoXML->cabecera->montoGiftCard)
-                                    );
+                        //dd(
+                        //    $archivoXML->cabecera->montoGiftCard,
+                        //    $archivoXML->cabecera->montoTotal,
+                        //    isset($archivoXML->cabecera->montoGiftCard),
+                        //    is_numeric($archivoXML->cabecera->montoGiftCard),
+                        //    (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) (string) $archivoXML->cabecera->montoGiftCard : 0,
+                        //    (isset($archivoXML->cabecera->montoTotal) && is_numeric($archivoXML->cabecera->montoTotal))? (float) (string) $archivoXML->cabecera->montoTotal : 0,
+                        //    getXmlValue($archivoXML->cabecera->montoGiftCard)
+                        //    );
 
-                                $monto_gif_card = (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) $archivoXML->cabecera->montoGiftCard : 0;
-                                $monto_total = (isset($archivoXML->cabecera->montoTotal) && is_numeric($archivoXML->cabecera->montoTotal))? (float) $archivoXML->cabecera->montoTotal : 0;
-                                $to = $monto_total-$monto_gif_card;
+                        $monto_gif_card = getXmlValue($archivoXML->cabecera->montoGiftCard);
+                        $monto_total = getXmlValue($archivoXML->cabecera->montoTotal);
 
-    //                            $to = (float) $archivoXML->cabecera->montoTotal;
+                        $to = $monto_total-$monto_gif_card;
 
-                                // Separar la parte entera y la parte decimal del monto
-                                $entero = floor($to); // Parte entera
-                                $decimal = round(($to - $entero) * 100); // Parte decimal, redondeada a dos decimales
+//                            $to = (float) $archivoXML->cabecera->montoTotal;
 
-                                // Crear una instancia de NumberFormatter para el idioma español
-                                $formatter = new NumberFormatter('es', NumberFormatter::SPELLOUT);
+                        // Separar la parte entera y la parte decimal del monto
+                        $entero = floor($to); // Parte entera
+                        $decimal = round(($to - $entero) * 100); // Parte decimal, redondeada a dos decimales
 
-                                // Convertir solo la parte entera a su forma literal
-                                $literal = $formatter->format($entero);
+                        // Crear una instancia de NumberFormatter para el idioma español
+                        $formatter = new NumberFormatter('es', NumberFormatter::SPELLOUT);
+
+                        // Convertir solo la parte entera a su forma literal
+                        $literal = $formatter->format($entero);
 
                     @endphp
                     <!-- Mostrar el literal y la parte decimal como fracción de 100 -->
@@ -450,13 +451,16 @@
                 {{--  <td style="text-align: right;"><b>{{ number_format($to,2) }}</b></td>  --}}
                 <td style="text-align: right;">
                     @php
-//                            $monto_gif_card = (float) $archivoXML->cabecera->montoGiftCard;
-//                            $monto_total    = (float) $archivoXML->cabecera->montoTotal;
+                        //$monto_gif_card = (float) $archivoXML->cabecera->montoGiftCard;
+                        //$monto_total    = (float) $archivoXML->cabecera->montoTotal;
 
-                            $monto_gif_card = (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) $archivoXML->cabecera->montoGiftCard : 0;
-                            $monto_total    = (isset($archivoXML->cabecera->montoTotal) && is_numeric($archivoXML->cabecera->montoTotal))? (float) $archivoXML->cabecera->montoTotal : 0;
+                        //$monto_gif_card = (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) $archivoXML->cabecera->montoGiftCard : 0;
+                        //$monto_total    = (isset($archivoXML->cabecera->montoTotal) && is_numeric($archivoXML->cabecera->montoTotal))? (float) $archivoXML->cabecera->montoTotal : 0;
 
-                            $total          = $monto_total-$monto_gif_card;
+                        $monto_gif_card = getXmlValue($archivoXML->cabecera->montoGiftCard);
+                        $monto_total    = getXmlValue($archivoXML->cabecera->montoTotal);
+
+                        $total          = $monto_total-$monto_gif_card;
                     @endphp
 {{--                    <b>{{ number_format((float) $archivoXML->cabecera->montoTotal,2) }}</b>--}}
                     <b>{{ number_format((float) $total,2)  }}</b>
