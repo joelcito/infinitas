@@ -393,7 +393,9 @@
                                 $archivoXML->cabecera->montoGiftCard,
                                 $archivoXML->cabecera->montoTotal,
                                 isset($archivoXML->cabecera->montoGiftCard),
-                                is_numeric($archivoXML->cabecera->montoGiftCard)
+                                is_numeric($archivoXML->cabecera->montoGiftCard),
+                                (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) (string) $archivoXML->cabecera->montoGiftCard : 0,
+                                (isset($archivoXML->cabecera->montoTotal) && is_numeric($archivoXML->cabecera->montoTotal))? (float) (string) $archivoXML->cabecera->montoTotal : 0
                                 );
 
                             $monto_gif_card = (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) $archivoXML->cabecera->montoGiftCard : 0;
