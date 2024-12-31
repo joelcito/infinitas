@@ -389,7 +389,12 @@
                             // $monto_gif_card = number_format( (float) $archivoXML->cabecera->montoGiftCard, 2);
                             // $monto_total = number_format((float) $archivoXML->cabecera->montoTotal,2);
 
-                            dd($archivoXML->cabecera->montoGiftCard, $archivoXML->cabecera->montoTotal);
+                            dd(
+                                $archivoXML->cabecera->montoGiftCard,
+                                $archivoXML->cabecera->montoTotal,
+                                isset($archivoXML->cabecera->montoGiftCard),
+                                is_numeric($archivoXML->cabecera->montoGiftCard)
+                                );
 
                             $monto_gif_card = (isset($archivoXML->cabecera->montoGiftCard) && is_numeric($archivoXML->cabecera->montoGiftCard))? (float) $archivoXML->cabecera->montoGiftCard : 0;
                             $monto_total = (isset($archivoXML->cabecera->montoTotal) && is_numeric($archivoXML->cabecera->montoTotal))? (float) $archivoXML->cabecera->montoTotal : 0;
