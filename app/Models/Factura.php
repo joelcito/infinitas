@@ -38,5 +38,9 @@ class Factura extends Model
         return $this->belongsTo('App\Models\User', 'usuario_creador_id');
     }
 
+    public function siat_motivo_anulacion(){
+        return $this->belongsTo('App\Models\SiatMotivoAnulacion', 'siat_motivo_anulaciones_id');
+    }
+
 
 }

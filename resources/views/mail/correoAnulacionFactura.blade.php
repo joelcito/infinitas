@@ -62,7 +62,7 @@
             <div class="line">
                 ¡Gracias por confiar en nosotros!
                 Este correo es para informarle que la factura que emitio en la fecha {{ $date }} con numero
-                N° {{ $number }} fue <b>ANULADA</b>
+                N° {{ $number }} fue <b>ANULADA</b> por motivo <b>{{ $tipo_anulacion }}</b>
             </div>
             <div class="line">
                 Cualquier consulta respecto a la factura, no dudes

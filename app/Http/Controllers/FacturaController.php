@@ -629,7 +629,11 @@ class FacturaController extends Controller
                     $numero = $numeroFactura;
                     $fecha  = $factura->fecha;
 
-                    $this->enviaCorreoAnulacion($correo, $nombre, $numero, $fecha );
+                    $motivo_anulacion = SiatMotivoAnulacion::where('tipo_clasificador', $motivo_anulacion)->first();
+
+                    $factura->siat_motivo_anulaciones_id = $motivo_anulacion->id;
+
+                    $this->enviaCorreoAnulacion($correo, $nombre, $numero, $fecha, $motivo_anulacion->descripcion );
 
                     $data['estado'] = "success";
                 }else{
@@ -6163,8 +6167,12 @@ class FacturaController extends Controller
             $cabeza        = (array) $archivoXML;
             $cuf           = (string)$cabeza['cabecera']->cuf;
             $numeroFactura = (string)$cabeza['cabecera']->numeroFactura;
+
+            $urlApiServicioSiat = new UrlApiServicioSiat();
+            $UrlVerificaFactura = $urlApiServicioSiat->getUrlVerificaFactura($empresa->codigo_ambiente);
+
             // Genera el texto para el código QR
-            $textoQR = $empresa->url_verifica."?nit=".$empresa->nit."&cuf=".$factura->cuf."&numero=".$numeroFactura."&t=1";
+            $textoQR = $UrlVerificaFactura->url_servicio."?nit=".$empresa->nit."&cuf=".$factura->cuf."&numero=".$numeroFactura."&t=1";
 
             // Genera la ruta temporal para guardar la imagen del código QR
             $rutaImagenQR = storage_path('app/public/qr_code.png');
@@ -6206,7 +6214,7 @@ class FacturaController extends Controller
         return $data;
     }
 
-    protected function enviaCorreoAnulacion($correo, $nombre, $numero, $fecha){
+    protected function enviaCorreoAnulacion($correo, $nombre, $numero, $fecha, $tipo_anulacion){
 
         $usuario = Auth::user();
         $empresa = $usuario->empresa;
@@ -6219,13 +6227,14 @@ class FacturaController extends Controller
             $templateContent = file_get_contents($templatePath);
             $fecha = date('d/m/Y H:m:s');
             $data = [
-                'title'   => 'Bienvenido a mi aplicación',
-                'content' => 'Gracias por unirte a nosotros. Esperamos que disfrutes de tu tiempo aquí.',
-                'name'    => $nombre,
-                'number'  => $numero,
-                'date'    => $fecha,
-                'empresa' => $empresa->nombre,
-                'logo'    => asset("assets/img")."/".$empresa->logo
+                'title'             => 'Bienvenido a mi aplicación',
+                'content'           => 'Gracias por unirte a nosotros. Esperamos que disfrutes de tu tiempo aquí.',
+                'name'              => $nombre,
+                'number'            => $numero,
+                'date'              => $fecha,
+                'empresa'           => $empresa->nombre,
+                'logo'              => asset("assets/img")."/".$empresa->logo,
+                'tipo_anulacion'    => $tipo_anulacion
             ];
 
             foreach ($data as $key => $value)
