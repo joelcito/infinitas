@@ -373,7 +373,6 @@
                                     </div>
                                 </div>
 
-
                                 <div class="row mt-3" id="bloque-tipo-pago" style="display: none">
                                     <div class="col-md-12">
                                         <label for="">Numero de Tarjeta:</label>
@@ -384,7 +383,7 @@
                                 <div class="row mt-3" id="bloque-gifr-card" style="display: none">
                                     <div class="col-md-12">
                                         <label for="">Monto del Gift Card:</label>
-                                        <input type="number" class="form-control form-control-sm" id="monto_gift_card" name="monto_gift_card" placeholder="Ingrese el monto del gift card" />
+                                        <input type="number" class="form-control form-control-sm" id="monto_gift_card" name="monto_gift_card" placeholder="Ingrese el monto del gift card" step="0.01"/>
                                     </div>
                                 </div>
 
@@ -644,6 +643,7 @@
                         let descuentoAdicional = $('#descuento_adicional').val()
 
                         $('#monto_total').val(parseFloat(sumaTotal)-parseFloat(descuentoAdicional))
+                        $('#monto_gift_card').attr('max', parseFloat(sumaTotal)-parseFloat(descuentoAdicional));
 
                     } else {
                         Swal.fire({
@@ -674,7 +674,10 @@
 
                     var monto_total_r = parseFloat($('#monto_total').val())+parseFloat(servicio.subTotal);
 
-                    $('#monto_total').val(monto_total_r.toFixed(2))
+                    $('#monto_total').val(monto_total_r.toFixed(2));
+
+                    //VALIDAMOS QUE EL MONTO DE GITCAD NO SOBREPASE EL MONTO DEL PRODUCTO
+                    $('#monto_gift_card').attr('max', monto_total_r);
                 }
 
                 // BORRAMOS LOS ITEM QUE AGREGAMOS
@@ -867,7 +870,7 @@
 
         function verificaTipoPago(select){
             let valor = select.value;
-            if(valor == 2 || valor == 10){
+            if(valor == 2 || valor == 10  || valor == 83){
                 $('#bloque-tipo-pago').show('toggle')
                 $('#monto_gift_card').val(null)
                 $('#bloque-gifr-card').hide('toggle')

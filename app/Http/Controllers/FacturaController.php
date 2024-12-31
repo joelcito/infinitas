@@ -1105,9 +1105,8 @@ class FacturaController extends Controller
                     $contenidoabeceraFcv['complemento']                  = ($complemento != null && $complemento != '')? $complemento : null;
                     $contenidoabeceraFcv['codigoCliente']                = $cliente_id;
                     $contenidoabeceraFcv['codigoMetodoPago']             = $facturacion_datos_tipo_metodo_pago;
-                    $contenidoabeceraFcv['numeroTarjeta']                = ($facturacion_datos_tipo_metodo_pago == 1)? null : $numeroEnmascarado;
+                    $contenidoabeceraFcv['numeroTarjeta']                = ($facturacion_datos_tipo_metodo_pago == 1)? null : (($numero_tarjeta == null)? null : $numeroEnmascarado);
                     $contenidoabeceraFcv['montoTotal']                   = $monto_total;
-//                    $contenidoabeceraFcv['montoTotalSujetoIva']          = $monto_total;
                     $contenidoabeceraFcv['montoTotalSujetoIva']          = ($monto_gift_card != null)? (($monto_total - $monto_gift_card)) : $monto_total;
                     $contenidoabeceraFcv['codigoMoneda']                 = $facturacion_datos_tipo_moneda;
                     $contenidoabeceraFcv['tipoCambio']                   = 1;
@@ -2062,7 +2061,7 @@ class FacturaController extends Controller
 
         if($request->ajax()){
 
-            // dd($request->all());
+//             dd($request->all());
 
             $usuario        = Auth::user();
             $empresa        = $usuario->empresa;
@@ -2106,6 +2105,9 @@ class FacturaController extends Controller
                     $descuento_adicional                = $request->input('descuento_adicional');
                     $monto_total                        = $request->input('monto_total');
                     $uso_cafc                           = $request->input('uso_cafc');
+                    $numero_tarjeta                     = $request->input('numero_tarjeta');
+                    $monto_gift_card                    = $request->input('monto_gift_card');
+                    $numeroEnmascarado                  = ($numero_tarjeta != null)? substr($numero_tarjeta, 0, 4) . str_repeat('0', strlen($numero_tarjeta) - 8) . substr($numero_tarjeta, -4) : null;
                     $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
 
                     $contenidoabeceraFcv      = array();
@@ -2147,13 +2149,14 @@ class FacturaController extends Controller
                     $contenidoabeceraFcv['periodoFacturado']             = $mesLiteral.' '.date('Y');
 
                     $contenidoabeceraFcv['codigoMetodoPago']             = $facturacion_datos_tipo_metodo_pago;
-                    $contenidoabeceraFcv['numeroTarjeta']                = null;
+                    $contenidoabeceraFcv['numeroTarjeta']                = ($facturacion_datos_tipo_metodo_pago == 1)? null : (($numero_tarjeta == null)? null : $numeroEnmascarado);
                     $contenidoabeceraFcv['montoTotal']                   = $monto_total;
-                    $contenidoabeceraFcv['montoTotalSujetoIva']          = $monto_total;
+                    $contenidoabeceraFcv['montoTotalSujetoIva']          = ($monto_gift_card != null)? (($monto_total - $monto_gift_card)) : $monto_total;
+//                    $contenidoabeceraFcv['montoTotalSujetoIva']          = $monto_total;
                     $contenidoabeceraFcv['codigoMoneda']                 = $facturacion_datos_tipo_moneda;
                     $contenidoabeceraFcv['tipoCambio']                   = 1;
                     $contenidoabeceraFcv['montoTotalMoneda']             = $monto_total;
-                    $contenidoabeceraFcv['montoGiftCard']                = null;
+                    $contenidoabeceraFcv['montoGiftCard']                = $monto_gift_card;
                     $contenidoabeceraFcv['descuentoAdicional']           = $descuento_adicional;
                     $contenidoabeceraFcv['codigoExcepcion']              = ($execpcion === "true")? 1 : 0;
                     $contenidoabeceraFcv['cafc']                         = null;

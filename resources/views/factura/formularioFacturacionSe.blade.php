@@ -369,6 +369,20 @@
                                     </div>
                                 </div>
 
+                                <div class="row mt-3" id="bloque-tipo-pago" style="display: none">
+                                    <div class="col-md-12">
+                                        <label for="">Numero de Tarjeta:</label>
+                                        <input type="number" class="form-control form-control-sm" id="numero_tarjeta" name="numero_tarjeta" oninput="verificarNumeroTarjeta()" placeholder="Ingrese el número de la tarjeta" />
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3" id="bloque-gifr-card" style="display: none">
+                                    <div class="col-md-12">
+                                        <label for="">Monto del Gift Card:</label>
+                                        <input type="number" class="form-control form-control-sm" id="monto_gift_card" name="monto_gift_card" placeholder="Ingrese el monto del gift card" step="0.01"/>
+                                    </div>
+                                </div>
+
                                 <div class="row mt-3">
                                     <div class="col-md-2">
                                         <label for="">Nit/Cedula</label>
@@ -411,13 +425,7 @@
                                         <input type="number" class="form-control form-control-sm" id="numero_factura_cafc" name="numero_factura_cafc">
                                     </div>
                                 </div>
-                                <div class="row" id="bloque-tipo-pago" style="display: none">
-                                    <div class="col-md-12">
-                                        <label for="">Numero de Tarjeta:</label>
-                                        {{--                                        <input type="text" class="form-control form-control-sm" id="numero_tarjeta" name="numero_tarjeta" oninput="verificarNumeroTarjeta()" placeholder="Ingrese el número de la tarjeta" />--}}
-                                        <input type="number" class="form-control form-control-sm" id="numero_tarjeta" name="numero_tarjeta" oninput="verificarNumeroTarjeta()" placeholder="Ingrese el número de la tarjeta" />
-                                    </div>
-                                </div>
+
                                 <div class="row" id="bloque_exepcion" style="display: none">
                                     <div class="col-md-12">
                                         <div class="form-group">
@@ -461,7 +469,7 @@
 
         $(document).ready(function() {
 
-            $("#serivicio_id_venta, #documento_sector_siat_id_new_servicio, #actividad_economica_siat_id_new_servicio, #producto_servicio_siat_id_new_servicio, #unidad_medida_siat_id_new_servicio").select2();
+            $("#serivicio_id_venta, #documento_sector_siat_id_new_servicio, #actividad_economica_siat_id_new_servicio, #producto_servicio_siat_id_new_servicio, #unidad_medida_siat_id_new_servicio, #facturacion_datos_tipo_metodo_pago, #facturacion_datos_tipo_moneda, #tipo_documento").select2();
 
             // Inicializa el DataTable
             table = $('#carrito').DataTable({
@@ -522,9 +530,19 @@
 
         function verificaTipoPago(select){
             let valor = select.value;
-            if(valor == 2 || valor == 10){
+            if(valor == 2 || valor == 10  || valor == 83){
                 $('#bloque-tipo-pago').show('toggle')
+                $('#monto_gift_card').val(null)
+                $('#bloque-gifr-card').hide('toggle')
+            }else if(valor == 27 || valor == 35){
+                $('#bloque-gifr-card').show('toggle')
+                $('#numero_tarjeta').val(null)
+                $('#bloque-tipo-pago').hide('toggle')
             }else{
+                $('#monto_gift_card').val(null)
+                $('#numero_tarjeta').val(null)
+
+                $('#bloque-gifr-card').hide('toggle')
                 $('#bloque-tipo-pago').hide('toggle')
             }
         }
@@ -851,7 +869,7 @@
                             cliente_id                        : $('#cliente_id_escogido').val(),
                             carrito                           : arrayProductoCar,
                             facturacion_datos_tipo_metodo_pago: $('#facturacion_datos_tipo_metodo_pago').val(),
-                            numero_tarjeta: $('#numero_tarjeta').val(),
+                            numero_tarjeta                    : $('#numero_tarjeta').val(),
                             facturacion_datos_tipo_moneda     : $('#facturacion_datos_tipo_moneda').val(),
                             tipo_documento                    : $('#tipo_documento').val(),
                             nit_factura                       : $('#nit_factura').val(),
@@ -863,7 +881,7 @@
                             complemento                       : $('#complemento').val(),
                             descuento_adicional               : $('#descuento_adicional').val(),
                             monto_total                       : $('#monto_total').val(),
-                            monto_total                       : $('#monto_total').val(),
+                            monto_gift_card                   : $('#monto_gift_card').val()
                         },
                         success: function (data) {
                             if(data.estado === "VALIDADA"){
