@@ -877,7 +877,7 @@
                 $('#bloque-gifr-card').hide('toggle')
             }else if(valor == 27 || valor == 35){
                 $('#bloque-gifr-card').show('toggle')
-                
+
                 $('#numero_tarjeta').val(null)
                 $('#bloque-tipo-pago').hide('toggle')
             }else{
