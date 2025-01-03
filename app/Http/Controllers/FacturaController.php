@@ -6334,7 +6334,7 @@ class FacturaController extends Controller
         $subject    = 'REVERSION DE FACTURA EN LINEA '.$empresa->nombre;
 
         // Cargar el contenido de la vista del correo
-        $templatePath = resource_path('views/mail/correoAnulacionFactura.blade.php');
+        $templatePath = resource_path('views/mail/correoReversionFactura.blade.php');
         $templateContent = file_get_contents($templatePath);
         $fecha = date('d/m/Y H:m:s');
         $data = [
