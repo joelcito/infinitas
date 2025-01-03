@@ -403,7 +403,7 @@
                                 <div class="row mt-3">
                                     <div class="col-md-2">
                                         <label for="">Nit/Cedula</label>
-                                        <input type="number" class="form-control form-control-sm" id="nit_factura" name="nit_factura" onchange="verificaNit()" autocomplete="off" required>
+                                        <input type="text" class="form-control form-control-sm" id="nit_factura" name="nit_factura" onchange="verificaNit()" autocomplete="off" required>
                                         <small style="display: none;" class="text-danger" id="nitnoexiste">** NIT INVALIDO **</small>
                                         <small style="display: none;" class="text-success" id="nitsiexiste">** NIT VALIDO **</small>
                                         <small style="display: none;" class="text-danger" id="errorValidar">ERROR LA VALIDAR</small>
