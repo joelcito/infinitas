@@ -740,6 +740,18 @@ class FacturaController extends Controller
                                 ->whereIn('detalle_id', $idsDetalle)
                                 ->update(['deleted_at' => null]);
 
+                    //ENVIAMOS EL CORREO
+                    $cliente = Cliente::find($factura->cliente_id);
+
+                    $numeroFactura = $factura->uso_cafc == "Si" ? $factura->numero_cafc : $factura->numero_factura;
+
+                    $correo = $cliente->correo;
+                    $nombre = $cliente->nombres." ".$cliente->ap_paterno." ".$cliente->ap_materno;
+                    $numero = $numeroFactura;
+                    $fecha  = $factura->fecha;
+
+                    $this->enviaCorreoReversion($correo, $nombre, $numero, $fecha);
+
                     $factura->save();
                     $data['estado'] = 'success';
                     $data['msg'] = $respuesta->resultado->RespuestaServicioFacturacion->codigoDescripcion;
@@ -6241,10 +6253,10 @@ class FacturaController extends Controller
                 $templateContent = str_replace('{{ $' . $key . ' }}', $value, $templateContent);
 
             // Configuración de los parámetros SMTP
-            $smtpHost       = 'mail.facbol.com';
+            $smtpHost       = 'mail.infinitassoluciones.net';
             $smtpPort       =  465;
-            $smtpUsername   = 'facturacion@facbol.com';
-            $smtpPassword   = 'j}RXM[5&#yzz';
+            $smtpUsername   = 'facturacion@infinitassoluciones.net';
+            $smtpPassword   = '9Udjw_IMIS}D';
 
             // $smtpUsername   = 'sistemas@comercio-latino.com';
             // $smtpPassword   = 'j@xKuZ(65VNK';
@@ -6311,6 +6323,61 @@ class FacturaController extends Controller
 
         // $mail = new CorreoAnulacion($nombre, $numero, $fecha);
         // $response = Mail::to($correo)->send($mail);
+    }
+
+    protected function enviaCorreoReversion($correo, $nombre, $numero, $fecha){
+
+        $usuario = Auth::user();
+        $empresa = $usuario->empresa;
+
+        $to         = $correo;
+        $subject    = 'REVERSION DE FACTURA EN LINEA '.$empresa->nombre;
+
+        // Cargar el contenido de la vista del correo
+        $templatePath = resource_path('views/mail/correoAnulacionFactura.blade.php');
+        $templateContent = file_get_contents($templatePath);
+        $fecha = date('d/m/Y H:m:s');
+        $data = [
+            'title'             => 'Bienvenido a mi aplicación',
+            'content'           => 'Gracias por unirte a nosotros. Esperamos que disfrutes de tu tiempo aquí.',
+            'name'              => $nombre,
+            'number'            => $numero,
+            'date'              => $fecha,
+            'empresa'           => $empresa->nombre,
+            'logo'              => asset("assets/img")."/".$empresa->logo
+        ];
+
+        foreach ($data as $key => $value)
+            $templateContent = str_replace('{{ $' . $key . ' }}', $value, $templateContent);
+
+        // Configuración de los parámetros SMTP
+        $smtpHost       = 'mail.infinitassoluciones.net';
+        $smtpPort       =  465;
+        $smtpUsername   = 'facturacion@infinitassoluciones.net';
+        $smtpPassword   = '9Udjw_IMIS}D';
+
+        $mail = new PHPMailer(true);
+
+        try {
+
+            $mail->setFrom($smtpUsername, $empresa->nombre);
+            $mail->addAddress($to);
+
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body    = $templateContent;
+
+            $mail->send();
+
+            // return 'Correo enviado correctamente';
+            $data['estado'] = 'success';
+            $data['msg']    = 'Correo enviado correctamente';
+
+        } catch (Exception $e) {
+            $data['estado'] = 'error';
+            $data['msg'] = 'No se pudo enviar el correo: ' . $mail->ErrorInfo;
+        }
+
     }
 
     protected function cantidadStockEmpresa($id_servicio){

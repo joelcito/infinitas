@@ -973,15 +973,23 @@
         }
 
         function verificaTipoPago(select){
-            let valor = select.value;
-            if(valor == 2 || valor == 10  || valor == 83){
+            let arrayTarjeta = [2,10,16,17,18,19,20,39,40,41,42,43,82,83,84,85,87,88,89,134,135,136,137,139,140,141,142,143,144,145,147,148,149,150,151,152,154,155,156,157,158,160,161,162,163,165,166,167,169,170,171,172,173,174,175,176,177,297];
+            let arrayGiftCard = [27,30,35,64,68,76,77,304,94,102,109,115,120,124,128,129,130,182,189,195,200,204,217,224,225,228,232,241,246,250,261,265,269,270,271,275,279,280,281,291,292,293];
+            let arrayTarjetaGiftCard = [86,138,146,153,159,164,168,223];
+            let valor = parseInt(select.value);
+            // if(valor == 2 || valor == 10  || valor == 83 || valor == 86){
+            if(arrayTarjeta.includes(valor)){
                 $('#bloque-tipo-pago').show('toggle')
                 $('#monto_gift_card').val(null)
                 $('#bloque-gifr-card').hide('toggle')
-            }else if(valor == 27 || valor == 35){
+                // }else if(valor == 27 || valor == 35){
+            }else if(arrayGiftCard.includes(valor)){
                 $('#bloque-gifr-card').show('toggle')
                 $('#numero_tarjeta').val(null)
                 $('#bloque-tipo-pago').hide('toggle')
+            }else if(arrayTarjetaGiftCard.includes(valor)){
+                $('#bloque-gifr-card').show('toggle')
+                $('#bloque-tipo-pago').show('toggle')
             }else{
                 $('#monto_gift_card').val(null)
                 $('#numero_tarjeta').val(null)
@@ -989,6 +997,22 @@
                 $('#bloque-gifr-card').hide('toggle')
                 $('#bloque-tipo-pago').hide('toggle')
             }
+            // let valor = select.value;
+            // if(valor == 2 || valor == 10  || valor == 83){
+            //     $('#bloque-tipo-pago').show('toggle')
+            //     $('#monto_gift_card').val(null)
+            //     $('#bloque-gifr-card').hide('toggle')
+            // }else if(valor == 27 || valor == 35){
+            //     $('#bloque-gifr-card').show('toggle')
+            //     $('#numero_tarjeta').val(null)
+            //     $('#bloque-tipo-pago').hide('toggle')
+            // }else{
+            //     $('#monto_gift_card').val(null)
+            //     $('#numero_tarjeta').val(null)
+            //
+            //     $('#bloque-gifr-card').hide('toggle')
+            //     $('#bloque-tipo-pago').hide('toggle')
+            // }
         }
 
         function ejecutarDescuentoAdicional(){
@@ -1030,10 +1054,17 @@
 
 
         function bloqueCAFC(){
+            // if($('#tipo_facturacion').val() === "offline"){
+            //     $('#bloque_cafc').show('toggle')
+            // }else{
+            //     $('#bloque_cafc').hide('toggle')
+            // }
             if($('#tipo_facturacion').val() === "offline"){
                 $('#bloque_cafc').show('toggle')
+                $('#execpcion').prop('checked', true);
             }else{
                 $('#bloque_cafc').hide('toggle')
+                $('#execpcion').prop('checked', false);
             }
         }
 
