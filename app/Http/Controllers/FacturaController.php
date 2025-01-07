@@ -1069,6 +1069,18 @@ class FacturaController extends Controller
 
                     $documento_sector = 1;
 
+                    $leyendas = [
+                        "Ley N° 453: Tienes derecho a un trato equitativo sin discriminación en la oferta de servicios.",
+                        "Ley N° 453: En caso de incumplimiento a lo ofertado o convenido, el proveedor debe reparar o sustituir el servicio.",
+                        "Ley N° 453: El proveedor debe exhibir certificaciones de habilitación o documentos que acrediten las capacidades u ofertas de servicios especializados.",
+                        "Ley N° 453: Tienes derecho a recibir información sobre las características y contenidos de los servicios que utilices.",
+                        "Ley N° 453: El proveedor de servicios debe habilitar medios e instrumentos para efectuar consultas y reclamaciones.",
+                        "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.",
+                        "Ley N° 453: La interrupción del servicio debe comunicarse con anterioridad a las Autoridades que correspondan y a los usuarios afectados.",
+                        "Ley N° 453: Los servicios deben suministrarse en condiciones de inocuidad, calidad y seguridad.",
+                    ];
+
+
                     $carroVentas                        = $request->input('carrito');
                     $cliente_id                         = $request->input('cliente_id');
                     $facturacion_datos_tipo_metodo_pago = $request->input('facturacion_datos_tipo_metodo_pago');
@@ -1086,7 +1098,8 @@ class FacturaController extends Controller
                     $numero_tarjeta                     = $request->input('numero_tarjeta');
                     $monto_gift_card                    = $request->input('monto_gift_card');
                     $numeroEnmascarado                  = ($numero_tarjeta != null)? substr($numero_tarjeta, 0, 4) . str_repeat('0', strlen($numero_tarjeta) - 8) . substr($numero_tarjeta, -4) : null;
-                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+//                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+                    $leyenda                            = $leyendas[array_rand($leyendas)];
 
                     $contenidoabeceraFcv      = array();
                     $cabeceraFcv              = array();
@@ -1613,6 +1626,17 @@ class FacturaController extends Controller
 
                     $documento_sector = 8;
 
+                    $leyendas = [
+                        "Ley N° 453: Tienes derecho a un trato equitativo sin discriminación en la oferta de servicios.",
+                        "Ley N° 453: En caso de incumplimiento a lo ofertado o convenido, el proveedor debe reparar o sustituir el servicio.",
+                        "Ley N° 453: El proveedor debe exhibir certificaciones de habilitación o documentos que acrediten las capacidades u ofertas de servicios especializados.",
+                        "Ley N° 453: Tienes derecho a recibir información sobre las características y contenidos de los servicios que utilices.",
+                        "Ley N° 453: El proveedor de servicios debe habilitar medios e instrumentos para efectuar consultas y reclamaciones.",
+                        "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.",
+                        "Ley N° 453: La interrupción del servicio debe comunicarse con anterioridad a las Autoridades que correspondan y a los usuarios afectados.",
+                        "Ley N° 453: Los servicios deben suministrarse en condiciones de inocuidad, calidad y seguridad.",
+                    ];
+
                     $carroVentas                        = $request->input('carrito');
                     $cliente_id                         = $request->input('cliente_id');
                     $facturacion_datos_tipo_metodo_pago = $request->input('facturacion_datos_tipo_metodo_pago');
@@ -1630,7 +1654,8 @@ class FacturaController extends Controller
                     $numero_tarjeta                     = $request->input('numero_tarjeta');
                     $monto_gift_card                    = $request->input('monto_gift_card');
                     $numeroEnmascarado                  = ($numero_tarjeta != null)? substr($numero_tarjeta, 0, 4) . str_repeat('0', strlen($numero_tarjeta) - 8) . substr($numero_tarjeta, -4) : null;
-                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+//                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+                    $leyenda                            = $leyendas[array_rand($leyendas)];
 
                     $contenidoabeceraFcv      = array();
                     $cabeceraFcv              = array();
@@ -2107,6 +2132,17 @@ class FacturaController extends Controller
 
                     $documento_sector = 11;
 
+                    $leyendas = [
+                        "Ley N° 453: Tienes derecho a un trato equitativo sin discriminación en la oferta de servicios.",
+                        "Ley N° 453: En caso de incumplimiento a lo ofertado o convenido, el proveedor debe reparar o sustituir el servicio.",
+                        "Ley N° 453: El proveedor debe exhibir certificaciones de habilitación o documentos que acrediten las capacidades u ofertas de servicios especializados.",
+                        "Ley N° 453: Tienes derecho a recibir información sobre las características y contenidos de los servicios que utilices.",
+                        "Ley N° 453: El proveedor de servicios debe habilitar medios e instrumentos para efectuar consultas y reclamaciones.",
+                        "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.",
+                        "Ley N° 453: La interrupción del servicio debe comunicarse con anterioridad a las Autoridades que correspondan y a los usuarios afectados.",
+                        "Ley N° 453: Los servicios deben suministrarse en condiciones de inocuidad, calidad y seguridad.",
+                    ];
+
                     $carroVentas                        = $request->input('carrito');
                     $cliente_id                         = $request->input('cliente_id');
                     $facturacion_datos_tipo_metodo_pago = $request->input('facturacion_datos_tipo_metodo_pago');
@@ -2124,7 +2160,8 @@ class FacturaController extends Controller
                     $numero_tarjeta                     = $request->input('numero_tarjeta');
                     $monto_gift_card                    = $request->input('monto_gift_card');
                     $numeroEnmascarado                  = ($numero_tarjeta != null)? substr($numero_tarjeta, 0, 4) . str_repeat('0', strlen($numero_tarjeta) - 8) . substr($numero_tarjeta, -4) : null;
-                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+//                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+                    $leyenda                            = $leyendas[array_rand($leyendas)];
 
                     $contenidoabeceraFcv      = array();
                     $cabeceraFcv              = array();
