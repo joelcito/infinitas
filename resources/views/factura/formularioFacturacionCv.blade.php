@@ -1073,14 +1073,15 @@
         }
 
         function bloqueCAFC(){
-            // if($('#tipo_facturacion').val() === "offline"){
-            //     $('#bloque_cafc').show('toggle')
-            // }else{
-            //     $('#bloque_cafc').hide('toggle')
-            // }
             if($('#tipo_facturacion').val() === "offline"){
-                $('#bloque_cafc').show('toggle')
-                $('#execpcion').prop('checked', true);
+
+                let tipo_documento = $('#tipo_documento').val();
+                let emision = $('#tipo_facturacion').val();
+
+                verificarExcepcion(tipo_documento, emision);
+
+                // $('#bloque_cafc').show('toggle')
+                // $('#execpcion').prop('checked', true);
             }else{
                 $('#bloque_cafc').hide('toggle')
                 $('#execpcion').prop('checked', false);
@@ -1271,6 +1272,17 @@
             })
         }else{
             $("#formulario_new_servicio")[0].reportValidity();
+        }
+    }
+
+    function verificarExcepcion(tipo_documento, emision){
+        if( emision === "offline"){
+            if(tipo_documento == "5"){ //VERIFICAMOS QUE SEA NIT
+                $('#execpcion').prop('checked', true);
+            }else{
+                $('#execpcion').prop('checked', false);
+            }
+            $('#bloque_cafc').show('toggle')
         }
     }
 

@@ -1056,12 +1056,21 @@
         function bloqueCAFC(){
             // if($('#tipo_facturacion').val() === "offline"){
             //     $('#bloque_cafc').show('toggle')
+            //     $('#execpcion').prop('checked', true);
             // }else{
             //     $('#bloque_cafc').hide('toggle')
+            //     $('#execpcion').prop('checked', false);
             // }
+
             if($('#tipo_facturacion').val() === "offline"){
-                $('#bloque_cafc').show('toggle')
-                $('#execpcion').prop('checked', true);
+
+                let tipo_documento = $('#tipo_documento').val();
+                let emision = $('#tipo_facturacion').val();
+
+                verificarExcepcion(tipo_documento, emision);
+
+                // $('#bloque_cafc').show('toggle')
+                // $('#execpcion').prop('checked', true);
             }else{
                 $('#bloque_cafc').hide('toggle')
                 $('#execpcion').prop('checked', false);
