@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Firma\Firmadores\FirmadorBoliviaSingle;
 use App\Firma\Firmadores\FirmadorBoliviaSinglePemCrt;
 use App\Models\Cliente;
+use App\Models\Cufd;
 use App\Models\Cuis;
 use App\Models\Detalle;
 use App\Models\Empresa;
@@ -1039,7 +1040,7 @@ class FacturaController extends Controller
 
         if($request->ajax()){
 
-//            dd($request->all());
+            // dd($request->all());
 
             $usuario        = Auth::user();
             $empresa        = $usuario->empresa;
@@ -1080,7 +1081,6 @@ class FacturaController extends Controller
                         "Ley N° 453: Los servicios deben suministrarse en condiciones de inocuidad, calidad y seguridad.",
                     ];
 
-
                     $carroVentas                        = $request->input('carrito');
                     $cliente_id                         = $request->input('cliente_id');
                     $facturacion_datos_tipo_metodo_pago = $request->input('facturacion_datos_tipo_metodo_pago');
@@ -1098,8 +1098,13 @@ class FacturaController extends Controller
                     $numero_tarjeta                     = $request->input('numero_tarjeta');
                     $monto_gift_card                    = $request->input('monto_gift_card');
                     $numeroEnmascarado                  = ($numero_tarjeta != null)? substr($numero_tarjeta, 0, 4) . str_repeat('0', strlen($numero_tarjeta) - 8) . substr($numero_tarjeta, -4) : null;
-//                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
-                    $leyenda                            = $leyendas[array_rand($leyendas)];
+  //                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
+                    $leyenda               = $leyendas[array_rand($leyendas)];
+                    $cufd_offLine          = $request->input('cufd_offLine');
+                    $fecha_emision_offLine = $request->input('fecha_emision_offLine');
+                    $hora_emision_offLine  = $request->input('hora_emision_offLine');
+
+                    // dd($request->all(), $cufd_offLine);
 
                     $contenidoabeceraFcv      = array();
                     $cabeceraFcv              = array();
@@ -1120,11 +1125,22 @@ class FacturaController extends Controller
                     $contenidoabeceraFcv['direccion']                    = null;
                     $contenidoabeceraFcv['codigoPuntoVenta']             = null;
 
-                    // PARA LA HORA
-                    $microtime                                                = microtime(true);
-                    $seconds                                                  = floor($microtime);
-                    $milliseconds                                             = round(($microtime - $seconds) * 1000);
-                    $formattedDateTime                                        = date("Y-m-d\TH:i:s.") . str_pad($milliseconds, 3, '0', STR_PAD_LEFT);
+                    if($tipo_facturacion === "online"){
+                        $formattedDateTime = $this->sacarFechaFacura();
+                    }else{
+                        if($fecha_emision_offLine == null && $hora_emision_offLine == null){
+                            $formattedDateTime = $this->sacarFechaFacura();
+                        }else{
+                            $formattedDateTime = Carbon::createFromFormat('Y-m-d H:i', "$fecha_emision_offLine $hora_emision_offLine")->format('Y-m-d\TH:i:s.v');
+                        }
+                    }
+
+                    // dd(
+                    //     $fecha_emision_offLine,
+                    //     $hora_emision_offLine,
+                    //     $formattedDateTime,
+                    //     $formattedDateTime
+                    // );
 
                     $contenidoabeceraFcv['fechaEmision']                 = $formattedDateTime;
                     $contenidoabeceraFcv['nombreRazonSocial']            = $razon_factura;
@@ -1309,25 +1325,36 @@ class FacturaController extends Controller
                         $punto_venta_id  = $punto_venta_objeto->id;
                         $codigo_ambiente = $empresa_objeto->codigo_ambiente;
 
-                        $datosCufdOffLine             = $eventoSignificadoControlller->sacarCufdVigenteFueraLinea(
-                            $empresa_id,
-                            $sucursal_id,
-                            $punto_venta_id,
-                            $codigo_ambiente
-                        );
 
-                        if($datosCufdOffLine['estado'] === "success"){
-                            $scufd                  = $datosCufdOffLine['scufd'];
-                            $scodigoControl         = $datosCufdOffLine['scodigoControl'];
-                            $sdireccion             = $datosCufdOffLine['sdireccion'];
-                            $sfechaVigenciaCufd     = $datosCufdOffLine['sfechaVigenciaCufd'];
-                        }else{
+                        // $datosCufdOffLine             = $eventoSignificadoControlller->sacarCufdVigenteFueraLinea(
+                        //     $empresa_id,
+                        //     $sucursal_id,
+                        //     $punto_venta_id,
+                        //     $codigo_ambiente
+                        // );
 
-                            $data['estado'] = "error";
-                            $data['text']    = "ERROR AL RECUPERAR EL CUFD ANTIGUO";
+                        // if($datosCufdOffLine['estado'] === "success"){
+                        //     $scufd                  = $datosCufdOffLine['scufd'];
+                        //     $scodigoControl         = $datosCufdOffLine['scodigoControl'];
+                        //     $sdireccion             = $datosCufdOffLine['sdireccion'];
+                        //     $sfechaVigenciaCufd     = $datosCufdOffLine['sfechaVigenciaCufd'];
+                        // }else{
 
-                            return $data;
-                        }
+                        //     $data['estado'] = "error";
+                        //     $data['text']    = "ERROR AL RECUPERAR EL CUFD ANTIGUO";
+
+                        //     return $data;
+                        // }
+
+                        //BUSCAMOS EL CUFD ENVIADO
+                        $cufdEnviadoUsaurio = Cufd::find($cufd_offLine);
+
+                        $scufd_id           = $cufdEnviadoUsaurio->id;
+                        $scufd              = $cufdEnviadoUsaurio->codigo;
+                        $scodigoControl     = $cufdEnviadoUsaurio->codigo_control;
+                        $sdireccion         = $cufdEnviadoUsaurio->direccion;
+                        $sfechaVigenciaCufd = $cufdEnviadoUsaurio->fecha_vigencia;
+
                     }
 
                     $cufPro                                                 = $this->generarBase16($cadenaConM11).$scodigoControl;
@@ -1465,24 +1492,23 @@ class FacturaController extends Controller
                                         ]);
 
                                 // DE AQUI VERIFICAMOS SI ES PRODUCTO O SERVICIO
-//                                foreach($idDetalles as $idDetalle){
-//
-//                                    $detalle  = Detalle::find($idDetalle);
-//                                    $servicio = $detalle->servicio;
-//
-//                                    if($servicio->tipo == 'producto'){
-//                                        $movimiento                     = new Movimiento();
-//                                        $movimiento->usuario_creador_id = $usuario->id;
-//                                        $movimiento->sucursal_id        = $sucursal_objeto->id;
-//                                        $movimiento->servicio_id        = $servicio->id;
-//                                        $movimiento->salida             = $detalle->cantidad;
-//                                        $movimiento->ingreso            = 0;
-//                                        $movimiento->fecha              = date('Y-m-d H:i:s');
-//                                        $movimiento->descripcion        = "VENTA";
-//                                        $movimiento->save();
-//                                    }
-//
-//                                }
+                                // foreach($idDetalles as $idDetalle){
+
+                                //     $detalle  = Detalle::find($idDetalle);
+                                //     $servicio = $detalle->servicio;
+
+                                //     if($servicio->tipo == 'producto'){
+                                //         $movimiento                     = new Movimiento();
+                                //         $movimiento->usuario_creador_id = $usuario->id;
+                                //         $movimiento->sucursal_id        = $sucursal_objeto->id;
+                                //         $movimiento->servicio_id        = $servicio->id;
+                                //         $movimiento->salida             = $detalle->cantidad;
+                                //         $movimiento->ingreso            = 0;
+                                //         $movimiento->fecha              = date('Y-m-d H:i:s');
+                                //         $movimiento->descripcion        = "VENTA";
+                                //         $movimiento->save();
+                                //     }
+                                // }
 
                                 $data['estado'] = $codigo_descripcion;
                                 $data['numero'] = $facturaVerdad->id;
@@ -1518,7 +1544,7 @@ class FacturaController extends Controller
                         $facturaVerdad->empresa_id              = $empresa_objeto->id;
                         $facturaVerdad->sucursal_id             = $sucursal_objeto->id;
                         $facturaVerdad->punto_venta_id          = $punto_venta_objeto->id;
-                        $facturaVerdad->cufd_id                 = $datosCufdOffLine['scufd_id'];
+                        $facturaVerdad->cufd_id                 = $scufd_id;
                         $facturaVerdad->fecha                   = $datos['factura'][0]['cabecera']['fechaEmision'];
                         $facturaVerdad->nit                     = $datos['factura'][0]['cabecera']['numeroDocumento'];
                         $facturaVerdad->razon_social            = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
@@ -1655,7 +1681,11 @@ class FacturaController extends Controller
                     $monto_gift_card                    = $request->input('monto_gift_card');
                     $numeroEnmascarado                  = ($numero_tarjeta != null)? substr($numero_tarjeta, 0, 4) . str_repeat('0', strlen($numero_tarjeta) - 8) . substr($numero_tarjeta, -4) : null;
 //                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
-                    $leyenda                            = $leyendas[array_rand($leyendas)];
+                    $leyenda               = $leyendas[array_rand($leyendas)];
+                    $cufd_offLine          = $request->input('cufd_offLine');
+                    $fecha_emision_offLine = $request->input('fecha_emision_offLine');
+                    $hora_emision_offLine  = $request->input('hora_emision_offLine');
+
 
                     $contenidoabeceraFcv      = array();
                     $cabeceraFcv              = array();
@@ -1676,11 +1706,15 @@ class FacturaController extends Controller
                     $contenidoabeceraFcv['direccion']                    = null;
                     $contenidoabeceraFcv['codigoPuntoVenta']             = null;
 
-                    // PARA LA HORA
-                    $microtime                                                = microtime(true);
-                    $seconds                                                  = floor($microtime);
-                    $milliseconds                                             = round(($microtime - $seconds) * 1000);
-                    $formattedDateTime                                        = date("Y-m-d\TH:i:s.") . str_pad($milliseconds, 3, '0', STR_PAD_LEFT);
+                    if($tipo_facturacion === "online"){
+                        $formattedDateTime = $this->sacarFechaFacura();
+                    }else{
+                        if($fecha_emision_offLine == null && $hora_emision_offLine == null){
+                            $formattedDateTime = $this->sacarFechaFacura();
+                        }else{
+                            $formattedDateTime = Carbon::createFromFormat('Y-m-d H:i', "$fecha_emision_offLine $hora_emision_offLine")->format('Y-m-d\TH:i:s.v');
+                        }
+                    }
 
                     $contenidoabeceraFcv['fechaEmision']                 = $formattedDateTime;
                     $contenidoabeceraFcv['nombreRazonSocial']            = $razon_factura;
@@ -1833,25 +1867,34 @@ class FacturaController extends Controller
                         $punto_venta_id  = $punto_venta_objeto->id;
                         $codigo_ambiente = $empresa_objeto->codigo_ambiente;
 
-                        $datosCufdOffLine             = $eventoSignificadoControlller->sacarCufdVigenteFueraLinea(
-                            $empresa_id,
-                            $sucursal_id,
-                            $punto_venta_id,
-                            $codigo_ambiente
-                        );
+                        // $datosCufdOffLine             = $eventoSignificadoControlller->sacarCufdVigenteFueraLinea(
+                        //     $empresa_id,
+                        //     $sucursal_id,
+                        //     $punto_venta_id,
+                        //     $codigo_ambiente
+                        // );
 
-                        if($datosCufdOffLine['estado'] === "success"){
-                            $scufd                  = $datosCufdOffLine['scufd'];
-                            $scodigoControl         = $datosCufdOffLine['scodigoControl'];
-                            $sdireccion             = $datosCufdOffLine['sdireccion'];
-                            $sfechaVigenciaCufd     = $datosCufdOffLine['sfechaVigenciaCufd'];
-                        }else{
+                        // if($datosCufdOffLine['estado'] === "success"){
+                        //     $scufd                  = $datosCufdOffLine['scufd'];
+                        //     $scodigoControl         = $datosCufdOffLine['scodigoControl'];
+                        //     $sdireccion             = $datosCufdOffLine['sdireccion'];
+                        //     $sfechaVigenciaCufd     = $datosCufdOffLine['sfechaVigenciaCufd'];
+                        // }else{
 
-                            $data['estado'] = "error";
-                            $data['text']    = "ERROR AL RECUPERAR EL CUFD ANTIGUO";
+                        //     $data['estado'] = "error";
+                        //     $data['text']    = "ERROR AL RECUPERAR EL CUFD ANTIGUO";
 
-                            return $data;
-                        }
+                        //     return $data;
+                        // }
+
+                        //BUSCAMOS EL CUFD ENVIADO
+                        $cufdEnviadoUsaurio = Cufd::find($cufd_offLine);
+
+                        $scufd_id           = $cufdEnviadoUsaurio->id;
+                        $scufd              = $cufdEnviadoUsaurio->codigo;
+                        $scodigoControl     = $cufdEnviadoUsaurio->codigo_control;
+                        $sdireccion         = $cufdEnviadoUsaurio->direccion;
+                        $sfechaVigenciaCufd = $cufdEnviadoUsaurio->fecha_vigencia;
                     }
 
                     $cufPro                                                 = $this->generarBase16($cadenaConM11).$scodigoControl;
@@ -2023,7 +2066,7 @@ class FacturaController extends Controller
                         $facturaVerdad->empresa_id               = $empresa_objeto->id;
                         $facturaVerdad->sucursal_id              = $sucursal_objeto->id;
                         $facturaVerdad->punto_venta_id           = $punto_venta_objeto->id;
-                        $facturaVerdad->cufd_id                  = $datosCufdOffLine['scufd_id'];
+                        $facturaVerdad->cufd_id                  = $scufd_id;
                         $facturaVerdad->siat_documento_sector_id = $documentos_sector_model->id;
                         $facturaVerdad->fecha                    = $datos['factura'][0]['cabecera']['fechaEmision'];
                         $facturaVerdad->nit                      = $datos['factura'][0]['cabecera']['numeroDocumento'];
@@ -2102,8 +2145,6 @@ class FacturaController extends Controller
 
         if($request->ajax()){
 
-//             dd($request->all());
-
             $usuario        = Auth::user();
             $empresa        = $usuario->empresa;
 
@@ -2161,7 +2202,10 @@ class FacturaController extends Controller
                     $monto_gift_card                    = $request->input('monto_gift_card');
                     $numeroEnmascarado                  = ($numero_tarjeta != null)? substr($numero_tarjeta, 0, 4) . str_repeat('0', strlen($numero_tarjeta) - 8) . substr($numero_tarjeta, -4) : null;
 //                    $leyenda                            = "Ley N° 453: El proveedor deberá suministrar el servicio en las modalidades y términos ofertados o convenidos.";
-                    $leyenda                            = $leyendas[array_rand($leyendas)];
+                    $leyenda               = $leyendas[array_rand($leyendas)];
+                    $cufd_offLine          = $request->input('cufd_offLine');
+                    $fecha_emision_offLine = $request->input('fecha_emision_offLine');
+                    $hora_emision_offLine  = $request->input('hora_emision_offLine');
 
                     $contenidoabeceraFcv      = array();
                     $cabeceraFcv              = array();
@@ -2184,11 +2228,15 @@ class FacturaController extends Controller
                     $contenidoabeceraFcv['direccion']                    = null;
                     $contenidoabeceraFcv['codigoPuntoVenta']             = null;
 
-                    // PARA LA HORA
-                    $microtime                                                = microtime(true);
-                    $seconds                                                  = floor($microtime);
-                    $milliseconds                                             = round(($microtime - $seconds) * 1000);
-                    $formattedDateTime                                        = date("Y-m-d\TH:i:s.") . str_pad($milliseconds, 3, '0', STR_PAD_LEFT);
+                    if($tipo_facturacion === "online"){
+                        $formattedDateTime = $this->sacarFechaFacura();
+                    }else{
+                        if($fecha_emision_offLine == null && $hora_emision_offLine == null){
+                            $formattedDateTime = $this->sacarFechaFacura();
+                        }else{
+                            $formattedDateTime = Carbon::createFromFormat('Y-m-d H:i', "$fecha_emision_offLine $hora_emision_offLine")->format('Y-m-d\TH:i:s.v');
+                        }
+                    }
 
                     $contenidoabeceraFcv['fechaEmision']                 = $formattedDateTime;
                     $contenidoabeceraFcv['nombreRazonSocial']            = $razon_factura;
@@ -2344,25 +2392,34 @@ class FacturaController extends Controller
                         $punto_venta_id  = $punto_venta_objeto->id;
                         $codigo_ambiente = $empresa_objeto->codigo_ambiente;
 
-                        $datosCufdOffLine             = $eventoSignificadoControlller->sacarCufdVigenteFueraLinea(
-                            $empresa_id,
-                            $sucursal_id,
-                            $punto_venta_id,
-                            $codigo_ambiente
-                        );
+                        // $datosCufdOffLine             = $eventoSignificadoControlller->sacarCufdVigenteFueraLinea(
+                        //     $empresa_id,
+                        //     $sucursal_id,
+                        //     $punto_venta_id,
+                        //     $codigo_ambiente
+                        // );
 
-                        if($datosCufdOffLine['estado'] === "success"){
-                            $scufd                  = $datosCufdOffLine['scufd'];
-                            $scodigoControl         = $datosCufdOffLine['scodigoControl'];
-                            $sdireccion             = $datosCufdOffLine['sdireccion'];
-                            $sfechaVigenciaCufd     = $datosCufdOffLine['sfechaVigenciaCufd'];
-                        }else{
+                        // if($datosCufdOffLine['estado'] === "success"){
+                        //     $scufd                  = $datosCufdOffLine['scufd'];
+                        //     $scodigoControl         = $datosCufdOffLine['scodigoControl'];
+                        //     $sdireccion             = $datosCufdOffLine['sdireccion'];
+                        //     $sfechaVigenciaCufd     = $datosCufdOffLine['sfechaVigenciaCufd'];
+                        // }else{
 
-                            $data['estado'] = "error";
-                            $data['text']    = "ERROR AL RECUPERAR EL CUFD ANTIGUO";
+                        //     $data['estado'] = "error";
+                        //     $data['text']    = "ERROR AL RECUPERAR EL CUFD ANTIGUO";
 
-                            return $data;
-                        }
+                        //     return $data;
+                        // }
+
+                        //BUSCAMOS EL CUFD ENVIADO
+                        $cufdEnviadoUsaurio = Cufd::find($cufd_offLine);
+
+                        $scufd_id           = $cufdEnviadoUsaurio->id;
+                        $scufd              = $cufdEnviadoUsaurio->codigo;
+                        $scodigoControl     = $cufdEnviadoUsaurio->codigo_control;
+                        $sdireccion         = $cufdEnviadoUsaurio->direccion;
+                        $sfechaVigenciaCufd = $cufdEnviadoUsaurio->fecha_vigencia;
                     }
 
                     $cufPro                                                 = $this->generarBase16($cadenaConM11).$scodigoControl;
@@ -2535,7 +2592,7 @@ class FacturaController extends Controller
                         $facturaVerdad->empresa_id              = $empresa_objeto->id;
                         $facturaVerdad->sucursal_id             = $sucursal_objeto->id;
                         $facturaVerdad->punto_venta_id          = $punto_venta_objeto->id;
-                        $facturaVerdad->cufd_id                 = $datosCufdOffLine['scufd_id'];
+                        $facturaVerdad->cufd_id                 = $scufd_id;
                         $facturaVerdad->fecha                   = $datos['factura'][0]['cabecera']['fechaEmision'];
                         $facturaVerdad->nit                     = $datos['factura'][0]['cabecera']['numeroDocumento'];
                         $facturaVerdad->razon_social            = $datos['factura'][0]['cabecera']['nombreRazonSocial'];
@@ -6443,6 +6500,14 @@ class FacturaController extends Controller
             $data['estado'] = 'error';
         }
         return $data;
+    }
+
+    protected function sacarFechaFacura(){
+        $microtime         = microtime(true);
+        $seconds           = floor($microtime);
+        $milliseconds      = round(($microtime - $seconds) * 1000);
+        $formattedDateTime = date("Y-m-d\TH:i:s.") . str_pad($milliseconds, 3, '0', STR_PAD_LEFT);
+        return $formattedDateTime;
     }
     // ===================  FUNCIOENES PROTEGIDAS  ========================
 

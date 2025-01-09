@@ -155,7 +155,7 @@ class EventoSignificativoController extends Controller
             $hora_inicio        = $request->input('hora_inicio');
             $fecha_fin          = $request->input('fecha_fin');
             $hora_fin           = $request->input('hora_fin');
-            $cufd_id            = $request->input('cufd_id');
+            $cufd_id            = $request->input('cufd_offLine');
 
             $cufdOffLine               = Cufd::find($cufd_id);
             $siat_evento_significativo = SiatEventoSignificativo::find($codigo_tipo_evento);
@@ -591,10 +591,13 @@ class EventoSignificativoController extends Controller
                             $data['estado'] = "success";
                             $data['msg']    = $validad->resultado;
 
+                            // dd($validad->resultado->RespuestaServicioFacturacion->mensajesList);
+
                             // Realizar la actualización utilizando Eloquent
                             Factura::whereIn('id', $idsToUpdate)->update([
                                 'codigo_descripcion'    => $validad->resultado->RespuestaServicioFacturacion->codigoDescripcion,
-                                'codigo_recepcion'      => $validad->resultado->RespuestaServicioFacturacion->codigoRecepcion
+                                'codigo_recepcion'      => $validad->resultado->RespuestaServicioFacturacion->codigoRecepcion,
+                                'descripcion'           => json_encode($validad->resultado)
                             ]);
                         }else{
                             $data['estado'] = "error";
@@ -604,7 +607,7 @@ class EventoSignificativoController extends Controller
                             Factura::whereIn('id', $idsToUpdate)->update([
                                 'codigo_descripcion'    => $validad->resultado->RespuestaServicioFacturacion->codigoDescripcion,
                                 'codigo_recepcion'      => $validad->resultado->RespuestaServicioFacturacion->codigoRecepcion,
-                                'descripcion'           => $validad->resultado->RespuestaServicioFacturacion->mensajesList
+                                'descripcion'           => json_encode($validad->resultado)
                             ]);
                         }
                     }else{
@@ -619,6 +622,80 @@ class EventoSignificativoController extends Controller
                 $data['estado'] = "error";
                 $data['msg']    = $e->getMessage();
             }
+        }else{
+            $data['text']   = 'No existe';
+            $data['estado'] = 'error';
+        }
+        return $data;
+    }
+
+    public function sacarCufdsPorTipoEvento(Request $request)
+    {
+        if($request->ajax()){
+
+            $usuario = Auth::user();
+
+            $empresa = $usuario->empresa;
+            $sucursal = $usuario->sucursal;
+            $puntoVenta = $usuario->puntoVenta;
+
+//            dd(
+//                $usuario,
+//                $empresa,
+//                $sucursal,
+//                $puntoVenta
+//            );
+
+            $empresa_id      = $empresa->id;
+            $sucursal_id     = $sucursal->id;
+            $punto_venta_id  = $puntoVenta->id;
+            $codigo_ambiente = $empresa->codigo_ambiente;
+
+            $tipo_evento_significativo = $request->input('tipo_evento_significativo');
+
+            // SACAMOS LOS CUFD DENTRO DE LAS HORAS
+            $cufds = Cufd::selectRaw('cufds.id, cufds.fecha_vigencia,COUNT(facturas.id) as cantida_facturas')
+                            ->leftJoin('facturas', function ($join) {
+                                $join->on('facturas.cufd_id', '=', 'cufds.id')
+                                    ->where('facturas.tipo_factura', '=', 'offline')
+                                    ->whereNull('facturas.estado')
+                                    ->whereNull('facturas.deleted_at')
+                                    ->whereNull('facturas.codigo_descripcion');
+                            })
+                            ->whereRaw('TIMESTAMPDIFF(HOUR, fecha_vigencia, NOW()) <= 72')
+                            ->where('cufds.empresa_id', $empresa_id)
+                            ->where('cufds.sucursal_id',$sucursal_id)
+                            ->where('cufds.punto_venta_id',$punto_venta_id)
+                            ->where('cufds.codigo_ambiente',$codigo_ambiente)
+                            ->groupBy('cufds.id', 'cufds.fecha_vigencia')
+                            ->orderBy('cufds.fecha_vigencia', 'desc')
+                            ->get();
+//                            ->toSql();
+
+//                            dd(
+//                                $cufds,
+//                                $empresa_id,
+//                                $sucursal_id,
+//                                $punto_venta_id,
+//                                $codigo_ambiente
+//                            );
+
+            $selectHeader = '<select name="cufd_offLine" id="cufd_offLine" class="form-control form-control-sm" required>';
+//            $selectBody = '<option value="">SELECCIONE</option>';
+            $selectBody = '';
+            $selectFooter = '</select>';
+
+            foreach ($cufds as $cufd) {
+                $selectBody = $selectBody . '<option value="'.$cufd->id.'">'.$cufd->fecha_vigencia.' | Cant. <span class="text-success">'.$cufd->cantida_facturas.'</span> </option>';
+            }
+
+
+            $selectBody = $selectHeader . $selectBody . $selectFooter;
+
+            $data['text']   = 'Se proceso con exito';
+            $data['estado'] = 'success';
+            $data['select'] = $selectBody;
+
         }else{
             $data['text']   = 'No existe';
             $data['estado'] = 'error';

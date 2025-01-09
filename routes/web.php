@@ -243,6 +243,7 @@ Route::middleware(['auth', 'one.session'])->group(function () {
         Route::post('/buscarEventosSignificativos', [EventoSignificativoController::class, 'buscarEventosSignificativos']);
         Route::post('/muestraTableFacturaPaquete', [EventoSignificativoController::class, 'muestraTableFacturaPaquete']);
         Route::post('/mandarFacturasPaquete', [EventoSignificativoController::class, 'mandarFacturasPaquete']);
+        Route::post('/sacarCufdsPorTipoEvento', [EventoSignificativoController::class, 'sacarCufdsPorTipoEvento']);
 
         // Route::post('/agregarRol', [RolController::class, 'agregarRol']);
 

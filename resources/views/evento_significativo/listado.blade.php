@@ -43,7 +43,7 @@
                             </div>
                         </div>
                         <div class="row mt-5">
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label class="fs-6 fw-semibold form-label mb-2 required">Fecha Ini</label>
@@ -57,7 +57,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label class="fs-6 fw-semibold form-label mb-2 required">Fecha Fin</label>
@@ -70,18 +70,18 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            {{-- <div class="col-md-2">
                                 <button class="btn btn-success btn-sm w-100 mt-9" type="button" title="Buscar CUFD"
                                     onclick="buscarCufd()"><i class="fa fa-search"></i></button>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="row mt-5">
                             <div class="col-md-12">
                                 <label class="fs-6 fw-semibold form-label mb-2 required">Cufd Intervalo</label>
                                 <div id="bloque_bloque_cufds">
-                                    <select name="cufd_id" id="cufd_id" class="form-control" required>
+                                    {{-- <select name="cufd_id" id="cufd_id" class="form-control" required>
                                         <option value="">Seleccionar</option>
-                                    </select>
+                                    </select> --}}
                                 </div>
                             </div>
                         </div>
@@ -220,8 +220,29 @@
             $('#fecha_fin').val(today)
             $('#hora_fin').val(currentTime)
 
-            $('#bloque_bloque_cufds').html('<select name="cufd_id" id="cufd_id" class="form-control" required><option value="">Seleccionar</option></select>');
-            $('#modal_evento_significativo').modal('show')
+            // $('#bloque_bloque_cufds').html('<select name="cufd_id" id="cufd_id" class="form-control" required><option value="">Seleccionar</option></select>');
+
+            $.ajax({
+                url   : "{{ url('eventosignificativo/sacarCufdsPorTipoEvento') }}",
+                method: "POST",
+                data  : {},
+                success: function (data) {
+                    if(data.estado === 'success'){
+                        // REMPLAZAR LOS CUFDS VIGENTES
+                        $('#bloque_bloque_cufds').html(data.select)
+                        $('#modal_evento_significativo').modal('show')
+
+                    }else{
+                        Swal.fire({
+                            icon : 'error',
+                            title: "Error!",
+                            text : data.text,
+                        })
+                    }
+                }
+            })
+
+            // $('#modal_evento_significativo').modal('show')
         }
 
         function agregarEventoSignificativo() {
@@ -283,6 +304,7 @@
             }
         }
 
+        /*
         function buscarCufd() {
             let fecha_ini = $('#fecha_inicio').val();
             let hora_ini = $('#hora_inicio').val();
@@ -317,5 +339,6 @@
                 alert("DEBE LLENAR FECHA INICIO, HORA INICIO, FECHA FINAL Y HORA FINAL")
             }
         }
+        */
     </script>
 @endsection

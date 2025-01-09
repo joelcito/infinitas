@@ -452,6 +452,30 @@
                                     </div>
                                 </div>
 
+                                <div class="row mt-3" id="bloque_cufd_offline" style="display: none">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Fecha de Emision Fuera de Linea</label>
+                                            <input type="date" class="form-control" id="fecha_emision_offLine" name="fecha_emision_offLine">
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Hora de Emision Fuera de Linea</label>
+                                            <input type="time" class="form-control form-control-sm" name="hora_emision_offLine" id="hora_emision_offLine">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Seleccionar los CUFD Vigentes</label>
+                                            <div id="select_cufd_vigentes">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </form>
                             <div class="row mt-2">
                                 <div class="col-md-12">
@@ -893,7 +917,10 @@
                             complemento                       : $('#complemento').val(),
                             descuento_adicional               : $('#descuento_adicional').val(),
                             monto_total                       : $('#monto_total').val(),
-                            monto_gift_card                   : $('#monto_gift_card').val()
+                            monto_gift_card                   : $('#monto_gift_card').val(),
+                            cufd_offLine                      : $('#cufd_offLine').val(),
+                            fecha_emision_offLine             : $('#fecha_emision_offLine').val(),
+                            hora_emision_offLine              : $('#hora_emision_offLine').val()
                         },
                         success: function (data) {
                             if(data.estado === "VALIDADA"){
@@ -1054,13 +1081,6 @@
 
 
         function bloqueCAFC(){
-            // if($('#tipo_facturacion').val() === "offline"){
-            //     $('#bloque_cafc').show('toggle')
-            //     $('#execpcion').prop('checked', true);
-            // }else{
-            //     $('#bloque_cafc').hide('toggle')
-            //     $('#execpcion').prop('checked', false);
-            // }
 
             if($('#tipo_facturacion').val() === "offline"){
 
@@ -1068,12 +1088,16 @@
                 let emision = $('#tipo_facturacion').val();
 
                 verificarExcepcion(tipo_documento, emision);
-
-                // $('#bloque_cafc').show('toggle')
-                // $('#execpcion').prop('checked', true);
             }else{
-                $('#bloque_cafc').hide('toggle')
+                $('#numero_factura_cafc').val(null)
+                $('#bloque_cafc, #numero_fac_cafc').hide('toggle')
                 $('#execpcion').prop('checked', false);
+
+                $('#select_cufd_vigentes').html('')
+                $('#bloque_cufd_offline').hide('toggle');
+
+                // Marcar el radio button con value="No" usando name
+                $('input[name="uso_cafc"][value="No"]').prop('checked', true);
             }
         }
 
@@ -1261,6 +1285,38 @@
                 })
             }else{
                 $("#formulario_new_servicio")[0].reportValidity();
+            }
+        }
+
+        function verificarExcepcion(tipo_documento, emision, uso_cafse){
+            if( emision === "offline"){
+                if(tipo_documento == "5"){ //VERIFICAMOS QUE SEA NIT
+                    $('#execpcion').prop('checked', true);
+                }else{
+                    $('#execpcion').prop('checked', false);
+                }
+                $('#bloque_cafc').show('toggle')
+
+                $.ajax({
+                    url   : "{{ url('eventosignificativo/sacarCufdsPorTipoEvento') }}",
+                    method: "POST",
+                    data  : {},
+                    success: function (data) {
+                        if(data.estado === 'success'){
+                            // REMPLAZAR LOS CUFDS VIGENTES
+                            $('#select_cufd_vigentes').html(data.select)
+                            $('#bloque_cufd_offline').show('toggle');
+                        }else{
+                            $('#select_cufd_vigentes').html('')
+                            $('#bloque_cufd_offline').hide('toggle');
+                            Swal.fire({
+                                icon : 'error',
+                                title: "Error!",
+                                text : data.text,
+                            })
+                        }
+                    }
+                })
             }
         }
 
